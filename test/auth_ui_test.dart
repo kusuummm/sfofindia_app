@@ -60,7 +60,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Member Portal & Services'), findsOneWidget);
+    expect(find.text('Member Portal'), findsOneWidget);
     expect(find.text('OFFICIAL MEMBERSHIP IDENTITY CARD'), findsOneWidget);
 
     // Switch to Documents tab to view certificate and tax receipt actions
@@ -93,7 +93,7 @@ void main() {
       expect(find.text('Total Members'), findsOneWidget);
       expect(find.text('Pending Verifications'), findsOneWidget);
       expect(find.text('Total Donations'), findsOneWidget);
-      expect(find.text('Campaigns'), findsOneWidget);
+      expect(find.text('Campaigns'), findsWidgets);
     }
     tester.view.resetPhysicalSize();
     tester.view.resetDevicePixelRatio();

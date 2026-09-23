@@ -1,11 +1,11 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../services/auth_service.dart';
 import '../../services/api_service.dart';
-import '../../models/auth_user_model.dart';
-import '../auth/login_screen.dart';
+import '../../core/utils/url_helper.dart';
 import '../widgets/document_preview_dialog.dart';
+import '../widgets/logout_dialog.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -62,6 +62,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final TextEditingController _cinCtrl = TextEditingController(text: 'U85300HR2022NPL101988');
   final TextEditingController _taxCtrl = TextEditingController(text: 'AAACS8912NF20214');
   final TextEditingController _darpanCtrl = TextEditingController(text: 'HR/2022/032189');
+
+  // Banking & UPI controllers
+  final TextEditingController _bankNameCtrl = TextEditingController(text: 'AXIS BANK');
+  final TextEditingController _bankAccountNameCtrl = TextEditingController(text: 'SHAHEED FOUNDATION');
+  final TextEditingController _bankAccountNoCtrl = TextEditingController(text: '925010034361992');
+  final TextEditingController _bankIfscCtrl = TextEditingController(text: 'UTIB0001970');
+  final TextEditingController _bankBranchCtrl = TextEditingController(text: 'Sector 29, Gurgaon, Haryana 122001');
+  final TextEditingController _bankUpiIdCtrl = TextEditingController(text: 'shaheedfoundation@axisbank');
 
   // Document Studio State & Controllers
   DocumentType _studioDocType = DocumentType.appointmentLetter;
@@ -276,6 +284,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     _cinCtrl.dispose();
     _taxCtrl.dispose();
     _darpanCtrl.dispose();
+    _bankNameCtrl.dispose();
+    _bankAccountNameCtrl.dispose();
+    _bankAccountNoCtrl.dispose();
+    _bankIfscCtrl.dispose();
+    _bankBranchCtrl.dispose();
+    _bankUpiIdCtrl.dispose();
     super.dispose();
   }
 
@@ -531,6 +545,24 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       if (s['org_darpan_id'] != null && s['org_darpan_id'].toString().trim().isNotEmpty) {
         _darpanCtrl.text = s['org_darpan_id'].toString();
       }
+      if (s['bank_name'] != null && s['bank_name'].toString().trim().isNotEmpty) {
+        _bankNameCtrl.text = s['bank_name'].toString();
+      }
+      if (s['bank_account_name'] != null && s['bank_account_name'].toString().trim().isNotEmpty) {
+        _bankAccountNameCtrl.text = s['bank_account_name'].toString();
+      }
+      if (s['bank_account_no'] != null && s['bank_account_no'].toString().trim().isNotEmpty) {
+        _bankAccountNoCtrl.text = s['bank_account_no'].toString();
+      }
+      if (s['bank_ifsc'] != null && s['bank_ifsc'].toString().trim().isNotEmpty) {
+        _bankIfscCtrl.text = s['bank_ifsc'].toString();
+      }
+      if (s['bank_branch'] != null && s['bank_branch'].toString().trim().isNotEmpty) {
+        _bankBranchCtrl.text = s['bank_branch'].toString();
+      }
+      if (s['bank_upi_id'] != null && s['bank_upi_id'].toString().trim().isNotEmpty) {
+        _bankUpiIdCtrl.text = s['bank_upi_id'].toString();
+      }
     }
 
     if (mounted) {
@@ -544,12 +576,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         "id": 6,
         "member_user_id": "MBR0006",
         "name": "Amit Sharma",
+        "gender": "Male",
+        "dob": "1988-06-15",
+        "relation_type": "S/O",
+        "relation_name": "Shri R. P. Sharma",
         "mobile": "9811223344",
         "email": "amit.sharma@gmail.com",
+        "blood_group": "B+",
         "status": "active",
+        "role": "District Welfare Coordinator",
         "district": "Gurugram",
+        "city": "Gurugram",
         "state": "Haryana",
+        "pin_code": "122001",
+        "address": "House 412, Sector 14, Near Community Center",
         "profession": "Social Worker",
+        "aadhar_no": "XXXX-XXXX-9841",
+        "payment_mode": "Direct UPI",
+        "authority": "National Executive Council",
+        "validity_start": "2024-08-15",
+        "validity_end": "2027-08-15",
         "renewal_date": "15 Aug 2027",
         "fee_status": "Paid",
         "created_at": "2024-08-15"
@@ -558,12 +604,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         "id": 5,
         "member_user_id": "MBR0005",
         "name": "Vikram Malhotra",
+        "gender": "Male",
+        "dob": "1991-11-20",
+        "relation_type": "S/O",
+        "relation_name": "Shri K. K. Malhotra",
         "mobile": "9876501234",
         "email": "vikram.m@gmail.com",
+        "blood_group": "A+",
         "status": "pending",
+        "role": "Legal Advisory Volunteer",
         "district": "Faridabad",
+        "city": "Faridabad",
         "state": "Haryana",
+        "pin_code": "121002",
+        "address": "Chamber 18, District Court Complex",
         "profession": "Advocate",
+        "aadhar_no": "XXXX-XXXX-5512",
+        "payment_mode": "Bank Transfer",
+        "authority": "National Executive Council",
+        "validity_start": "2024-08-16",
+        "validity_end": "2026-08-16",
         "renewal_date": "Pending Verification",
         "fee_status": "Due",
         "created_at": "2024-08-16"
@@ -572,12 +632,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         "id": 4,
         "member_user_id": "MBR0004",
         "name": "Kusum Rathore",
+        "gender": "Female",
+        "dob": "1985-04-12",
+        "relation_type": "W/O",
+        "relation_name": "Late Subedar Ramesh Rathore (Shaheed)",
         "mobile": "9876543210",
         "email": "kusumrathore662@gmail.com",
+        "blood_group": "O+",
         "status": "active",
+        "role": "National Welfare Coordinator",
         "district": "Gurugram",
+        "city": "Gurugram",
         "state": "Haryana",
+        "pin_code": "122001",
+        "address": "SCO-88, Opp. Sector 12 A, Delhi Road",
         "profession": "National Coordinator",
+        "aadhar_no": "XXXX-XXXX-8821",
+        "payment_mode": "Direct UPI",
+        "authority": "National Executive Council",
+        "validity_start": "2024-08-10",
+        "validity_end": "2027-08-10",
         "renewal_date": "10 Aug 2027",
         "fee_status": "Paid",
         "created_at": "2024-08-10"
@@ -586,13 +660,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         "id": 3,
         "member_user_id": "MBR0003",
         "name": "Col. Gurmeet Singh (Retd)",
+        "gender": "Male",
+        "dob": "1968-01-26",
+        "relation_type": "S/O",
+        "relation_name": "Brigadier H. S. Singh",
         "mobile": "9810011223",
         "email": "gurmeet.singh@gmail.com",
+        "blood_group": "AB+",
         "status": "active",
+        "role": "Honorary Defence Trustee",
         "district": "Chandigarh",
+        "city": "Chandigarh",
         "state": "Punjab",
+        "pin_code": "160017",
+        "address": "House 104, Sector 9-B",
         "profession": "Defence Consultant",
-        "renewal_date": "01 Aug 2027",
+        "aadhar_no": "XXXX-XXXX-1971",
+        "payment_mode": "Axis Bank Transfer",
+        "authority": "National Executive Council",
+        "validity_start": "2024-08-01",
+        "validity_end": "2028-08-01",
+        "renewal_date": "01 Aug 2028",
         "fee_status": "Paid",
         "created_at": "2024-08-01"
       },
@@ -604,31 +692,46 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       {
         "id": 1,
         "name": "Col. Gurmeet Singh",
+        "donor_name": "Col. Gurmeet Singh",
         "mobile": "9810011223",
         "email": "gurmeet.singh@gmail.com",
         "amount": "5000.00",
         "receipt_no": "80G-2024-99120",
         "campaign_title": "Martyr Family Support",
+        "payment_mode": "Direct UPI",
+        "utr_number": "UPI/428901239912",
+        "pan_number": "AAECS8948K",
+        "status": "paid",
         "created_at": "2024-08-14 11:20:00",
       },
       {
         "id": 2,
         "name": "Kusum Rathore",
+        "donor_name": "Kusum Rathore",
         "mobile": "9876543210",
         "email": "kusumrathore662@gmail.com",
         "amount": "3500.00",
         "receipt_no": "80G-2024-88410",
         "campaign_title": "Veer Nari Sustainable Aid",
+        "payment_mode": "Direct UPI",
+        "utr_number": "UPI/428109988410",
+        "pan_number": "BKUPR6721M",
+        "status": "paid",
         "created_at": "2024-08-10 14:15:00",
       },
       {
         "id": 3,
         "name": "Rajiv Malhotra",
+        "donor_name": "Rajiv Malhotra",
         "mobile": "9845012345",
         "email": "rajiv.malhotra@gmail.com",
         "amount": "2500.00",
         "receipt_no": "80G-2024-77119",
         "campaign_title": "Education Initiative",
+        "payment_mode": "Axis Bank Transfer",
+        "utr_number": "UTIBR520240801007",
+        "pan_number": "AALPM1092Q",
+        "status": "paid",
         "created_at": "2024-08-01 09:45:00",
       },
     ];
@@ -720,11 +823,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   void _handleLogout() {
-    _authService.logout();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginScreen(initialRole: UserRole.admin)),
-    );
+    LogoutDialog.show(context);
   }
 
   void _switchRoute(String route) {
@@ -740,190 +839,834 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   // --- ACTION MODALS ---
 
-  // 1. Onboard Member Modal
+  // 1. Onboard Member Modal (Comprehensive matching member_form.php)
   void _showOnboardMemberDialog() {
     final nameCtrl = TextEditingController();
     final phoneCtrl = TextEditingController();
     final emailCtrl = TextEditingController();
-    final stateCtrl = TextEditingController(text: 'Haryana');
-    final districtCtrl = TextEditingController(text: 'Gurugram');
+    final relationNameCtrl = TextEditingController();
     final professionCtrl = TextEditingController(text: 'Social Worker');
+    final pinCodeCtrl = TextEditingController(text: '122001');
+    final addressCtrl = TextEditingController();
+    final districtCtrl = TextEditingController(text: 'Gurugram');
+    final stateCtrl = TextEditingController(text: 'Haryana');
+    final aadharCtrl = TextEditingController();
+    final roleCtrl = TextEditingController(text: 'Life Welfare Member');
+    final authorityCtrl = TextEditingController(text: 'National Executive Council');
+    
+    final today = DateTime.now();
+    final validityStartCtrl = TextEditingController(text: "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}");
+    final endDate = today.add(const Duration(days: 1095));
+    final validityEndCtrl = TextEditingController(text: "${endDate.year}-${endDate.month.toString().padLeft(2, '0')}-${endDate.day.toString().padLeft(2, '0')}");
+    final dobCtrl = TextEditingController(text: '1990-01-01');
 
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: const Row(
-            children: [
-              Icon(Icons.person_add, color: Color(0xFF4F46E5)),
-              SizedBox(width: 10),
-              Text('Onboard New Member', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Full Name *', isDense: true, border: OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: phoneCtrl, decoration: const InputDecoration(labelText: 'Mobile Number *', isDense: true, border: OutlineInputBorder()), keyboardType: TextInputType.phone),
-                const SizedBox(height: 10),
-                TextField(controller: emailCtrl, decoration: const InputDecoration(labelText: 'Email Address', isDense: true, border: OutlineInputBorder()), keyboardType: TextInputType.emailAddress),
-                const SizedBox(height: 10),
-                TextField(controller: districtCtrl, decoration: const InputDecoration(labelText: 'District / City', isDense: true, border: OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: stateCtrl, decoration: const InputDecoration(labelText: 'State', isDense: true, border: OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: professionCtrl, decoration: const InputDecoration(labelText: 'Profession', isDense: true, border: OutlineInputBorder())),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4F46E5),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              ),
-              onPressed: () async {
-                if (nameCtrl.text.trim().isEmpty || phoneCtrl.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter Name and Mobile number.'), backgroundColor: Colors.red),
-                  );
-                  return;
-                }
-                Navigator.pop(context);
-                final res = await _apiService.createMember(
-                  data: {
-                    'name': nameCtrl.text.trim(),
-                    'mobile': phoneCtrl.text.trim(),
-                    'email': emailCtrl.text.trim(),
-                    'city': districtCtrl.text.trim(),
-                    'state': stateCtrl.text.trim(),
-                    'profession': professionCtrl.text.trim(),
-                  },
-                  token: _authService.currentUser?.token,
-                );
-                if (context.mounted) {
-                  if (res.isSuccess) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Member "${nameCtrl.text}" registered successfully!'), backgroundColor: const Color(0xFF10B981)),
-                    );
-                    _loadDashboardData();
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(res.message ?? 'Registration completed locally.'), backgroundColor: const Color(0xFF10B981)),
-                    );
-                    setState(() {
-                      _members.insert(0, {
-                        'id': _members.length + 1,
-                        'member_user_id': 'MBR000${_members.length + 1}',
-                        'name': nameCtrl.text.trim(),
-                        'mobile': phoneCtrl.text.trim(),
-                        'email': emailCtrl.text.trim(),
-                        'status': 'pending',
-                        'district': districtCtrl.text.trim(),
-                        'state': stateCtrl.text.trim(),
-                        'profession': professionCtrl.text.trim(),
-                      });
-                    });
-                  }
-                }
-              },
-              child: const Text('Register Member', style: TextStyle(fontWeight: FontWeight.bold)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  // 2. Record Offline Donation Modal
-  void _showRecordDonationDialog() {
-    final donorCtrl = TextEditingController();
-    final phoneCtrl = TextEditingController();
-    final amountCtrl = TextEditingController();
-    final panCtrl = TextEditingController();
-    String paymentMode = 'Cash';
+    String gender = 'Male';
+    String relationType = 'S/O';
+    String bloodGroup = 'O+';
+    String status = 'active';
+    String paymentMode = 'Direct UPI';
 
     showDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setDlgState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              title: const Row(
-                children: [
-                  Icon(Icons.add_card, color: Color(0xFF10B981)),
-                  SizedBox(width: 10),
-                  Text('Record Offline Donation & Issue 80G', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              content: SingleChildScrollView(
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                width: 640,
+                constraints: const BoxConstraints(maxHeight: 720),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextField(controller: donorCtrl, decoration: const InputDecoration(labelText: 'Donor Full Name *', isDense: true, border: OutlineInputBorder())),
-                    const SizedBox(height: 10),
-                    TextField(controller: phoneCtrl, decoration: const InputDecoration(labelText: 'Donor Mobile Number', isDense: true, border: OutlineInputBorder()), keyboardType: TextInputType.phone),
-                    const SizedBox(height: 10),
-                    TextField(controller: amountCtrl, decoration: const InputDecoration(labelText: 'Donation Amount (INR) *', prefixText: '₹ ', isDense: true, border: OutlineInputBorder()), keyboardType: TextInputType.number),
-                    const SizedBox(height: 10),
-                    TextField(controller: panCtrl, decoration: const InputDecoration(labelText: 'Donor PAN (For 80G Tax Exemption)', isDense: true, border: OutlineInputBorder())),
-                    const SizedBox(height: 10),
-                    DropdownButtonFormField<String>(
-                      initialValue: paymentMode,
-                      decoration: const InputDecoration(labelText: 'Payment Mode', isDense: true, border: OutlineInputBorder()),
-                      items: ['Cash', 'Bank Cheque', 'NEFT / RTGS', 'Direct UPI'].map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
-                      onChanged: (val) => setDlgState(() => paymentMode = val ?? 'Cash'),
+                    // Modal Header
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF4F46E5).withAlpha(40),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.person_add, color: Colors.white, size: 22),
+                          ),
+                          const SizedBox(width: 14),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Onboard New Member',
+                                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Complete KYC, Identity & Membership Enrollment (member_form.php)',
+                                  style: TextStyle(color: Colors.white70, fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white70),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Scrollable Form Body
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // SECTION 1: Personal Information
+                            _buildFormSectionHeader(Icons.person, '1. Personal Information'),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: nameCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'Full Legal Name *',
+                                hintText: 'e.g. Vikram Malhotra',
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: gender,
+                                    decoration: const InputDecoration(labelText: 'Gender', isDense: true, border: OutlineInputBorder()),
+                                    items: ['Male', 'Female', 'Other'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+                                    onChanged: (val) => setDlgState(() => gender = val ?? 'Male'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: dobCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Date of Birth (YYYY-MM-DD)',
+                                      hintText: '1990-01-01',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                      suffixIcon: Icon(Icons.calendar_today, size: 18),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 110,
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: relationType,
+                                    decoration: const InputDecoration(labelText: 'Relation', isDense: true, border: OutlineInputBorder()),
+                                    items: ['S/O', 'D/O', 'W/O', 'C/O'].map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+                                    onChanged: (val) => setDlgState(() => relationType = val ?? 'S/O'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: relationNameCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Father / Husband / Guardian Name',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: TextField(
+                                    controller: professionCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Profession / Occupation',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: bloodGroup,
+                                    decoration: const InputDecoration(labelText: 'Blood Group', isDense: true, border: OutlineInputBorder()),
+                                    items: ['A+', 'B+', 'O+', 'AB+', 'A-', 'B-', 'O-', 'AB-'].map((b) => DropdownMenuItem(value: b, child: Text(b))).toList(),
+                                    onChanged: (val) => setDlgState(() => bloodGroup = val ?? 'O+'),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 20),
+                            // SECTION 2: Contact & Residential Address
+                            _buildFormSectionHeader(Icons.contact_mail, '2. Contact & Residential Address'),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: phoneCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Mobile Phone Number *',
+                                      hintText: '10 digits mobile',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                      prefixText: '+91 ',
+                                    ),
+                                    keyboardType: TextInputType.phone,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: emailCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Email Address',
+                                      hintText: 'member@gmail.com',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    keyboardType: TextInputType.emailAddress,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: addressCtrl,
+                              maxLines: 2,
+                              decoration: const InputDecoration(
+                                labelText: 'Full Residential Address',
+                                hintText: 'House/Flat No, Street, Landmark',
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: districtCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'District / City',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: stateCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'State',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                SizedBox(
+                                  width: 110,
+                                  child: TextField(
+                                    controller: pinCodeCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'PIN Code',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 20),
+                            // SECTION 3: Identity & Membership Association
+                            _buildFormSectionHeader(Icons.verified_user, '3. Identity, Role & Validity Governance'),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: aadharCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Aadhaar Card Number',
+                                      hintText: '12-digit UIDAI number',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                      prefixIcon: Icon(Icons.fingerprint, size: 20),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: roleCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Role / Designation',
+                                      hintText: 'e.g. Life Welfare Member',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: status,
+                                    decoration: const InputDecoration(labelText: 'Initial Status', isDense: true, border: OutlineInputBorder()),
+                                    items: [
+                                      const DropdownMenuItem(value: 'active', child: Text('Active (Approved)')),
+                                      const DropdownMenuItem(value: 'pending', child: Text('Pending Review')),
+                                    ],
+                                    onChanged: (val) => setDlgState(() => status = val ?? 'active'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: paymentMode,
+                                    decoration: const InputDecoration(labelText: 'Enrollment Fee Mode', isDense: true, border: OutlineInputBorder()),
+                                    items: ['Direct UPI', 'Axis Bank Transfer', 'Cash', 'Online Gateway'].map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
+                                    onChanged: (val) => setDlgState(() => paymentMode = val ?? 'Direct UPI'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: authorityCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'Approving Authority',
+                                hintText: 'National Executive Council',
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: validityStartCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Validity Start (YYYY-MM-DD)',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: validityEndCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Validity End (YYYY-MM-DD)',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Dialog Actions
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF8FAFC),
+                        border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel', style: TextStyle(color: Color(0xFF64748B))),
+                          ),
+                          const SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4F46E5),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            icon: const Icon(Icons.check, size: 18),
+                            label: const Text('Register & Issue Membership', style: TextStyle(fontWeight: FontWeight.bold)),
+                            onPressed: () async {
+                              if (nameCtrl.text.trim().isEmpty || phoneCtrl.text.trim().isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Please enter Full Name and Mobile number.'), backgroundColor: Colors.red),
+                                );
+                                return;
+                              }
+                              Navigator.pop(context);
+
+                              final newMemberData = {
+                                'name': nameCtrl.text.trim(),
+                                'gender': gender,
+                                'dob': dobCtrl.text.trim(),
+                                'relation_type': relationType,
+                                'relation_name': relationNameCtrl.text.trim(),
+                                'profession': professionCtrl.text.trim(),
+                                'blood_group': bloodGroup,
+                                'mobile': phoneCtrl.text.trim(),
+                                'email': emailCtrl.text.trim(),
+                                'pin_code': pinCodeCtrl.text.trim(),
+                                'address': addressCtrl.text.trim(),
+                                'district': districtCtrl.text.trim(),
+                                'city': districtCtrl.text.trim(),
+                                'state': stateCtrl.text.trim(),
+                                'aadhar_no': aadharCtrl.text.trim(),
+                                'role': roleCtrl.text.trim(),
+                                'status': status,
+                                'payment_mode': paymentMode,
+                                'authority': authorityCtrl.text.trim(),
+                                'validity_start': validityStartCtrl.text.trim(),
+                                'validity_end': validityEndCtrl.text.trim(),
+                              };
+
+                              final res = await _apiService.createMember(
+                                data: newMemberData,
+                                token: _authService.currentUser?.token,
+                              );
+
+                              if (context.mounted) {
+                                final memberIdStr = 'MBR000${_members.length + 1}';
+                                setState(() {
+                                  _members.insert(0, {
+                                    'id': _members.length + 1,
+                                    'member_user_id': memberIdStr,
+                                    ...newMemberData,
+                                    'created_at': DateTime.now().toString().split(' ')[0],
+                                    'renewal_date': validityEndCtrl.text.trim(),
+                                    'fee_status': 'Paid',
+                                  });
+                                });
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(res.isSuccess
+                                        ? 'Member "${nameCtrl.text}" onboarded and synchronized with website database!'
+                                        : 'Member "${nameCtrl.text}" saved locally with full KYC dossier.'),
+                                    backgroundColor: const Color(0xFF10B981),
+                                  ),
+                                );
+                                _loadDashboardData();
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              actions: [
-                TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF10B981),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                  ),
-                  onPressed: () async {
-                    final amt = double.tryParse(amountCtrl.text.trim()) ?? 0;
-                    if (donorCtrl.text.trim().isEmpty || amt <= 0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please enter donor name and valid amount.'), backgroundColor: Colors.red),
-                      );
-                      return;
-                    }
-                    Navigator.pop(context);
-                    await _apiService.createDonation(
-                      data: {
-                        'donor_name': donorCtrl.text.trim(),
-                        'mobile': phoneCtrl.text.trim(),
-                        'amount': amt,
-                        'pan_number': panCtrl.text.trim(),
-                        'payment_mode': paymentMode,
-                      },
-                      token: _authService.currentUser?.token,
-                    );
-                    if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Donation of ₹$amt recorded with 80G Tax Exemption!'), backgroundColor: const Color(0xFF10B981)),
-                      );
-                      _loadDashboardData();
-                    }
-                  },
-                  child: const Text('Record & Issue 80G', style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
-              ],
             );
           },
         );
       },
+    );
+  }
+
+  // 2. Record Offline Donation Modal (Matching donations_list.php)
+  void _showRecordDonationDialog() {
+    final donorCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+    final emailCtrl = TextEditingController();
+    final amountCtrl = TextEditingController(text: '2500');
+    final utrCtrl = TextEditingController();
+    final panCtrl = TextEditingController();
+    final notesCtrl = TextEditingController();
+    final dateCtrl = TextEditingController(
+      text: "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
+    );
+
+    String paymentMode = 'Direct UPI';
+    String campaign = 'Martyr Family Support';
+    bool issueReceipt = true;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setDlgState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                width: 600,
+                constraints: const BoxConstraints(maxHeight: 700),
+                child: Column(
+                  children: [
+                    // Header
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF0F766E), Color(0xFF115E59)],
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withAlpha(40),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.add_card, color: Colors.white, size: 22),
+                          ),
+                          const SizedBox(width: 14),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Add Offline / Manual Donation',
+                                  style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Records contribution & generates Section 80G tax certificate (donations_list.php)',
+                                  style: TextStyle(color: Colors.white70, fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white70),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Form Body
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextField(
+                              controller: donorCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'Donor Full Name *',
+                                hintText: 'e.g. Major General Rajiv Verma',
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.person_outline),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: phoneCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Donor Mobile Number',
+                                      hintText: '10 digits mobile',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                      prefixText: '+91 ',
+                                    ),
+                                    keyboardType: TextInputType.phone,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: emailCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Donor Email Address',
+                                      hintText: 'For sending 80G receipt',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    keyboardType: TextInputType.emailAddress,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            // Amount Field with Preset Chips
+                            TextField(
+                              controller: amountCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'Contribution Amount (INR) *',
+                                prefixText: '₹ ',
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              children: [500, 1000, 2500, 5000, 10000].map((preset) {
+                                return ActionChip(
+                                  label: Text('₹$preset', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+                                  backgroundColor: const Color(0xFFF1F5F9),
+                                  onPressed: () {
+                                    setDlgState(() => amountCtrl.text = preset.toString());
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                            const SizedBox(height: 14),
+                            DropdownButtonFormField<String>(
+                              initialValue: campaign,
+                              decoration: const InputDecoration(labelText: 'Allocated Welfare Campaign', isDense: true, border: OutlineInputBorder()),
+                              items: [
+                                'Martyr Family Support',
+                                'Veer Nari Sustainable Aid',
+                                'Education Initiative',
+                                'Shaheed Smarak Memorial',
+                                'General Welfare Fund',
+                              ].map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+                              onChanged: (val) => setDlgState(() => campaign = val ?? 'Martyr Family Support'),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: paymentMode,
+                                    decoration: const InputDecoration(labelText: 'Payment Mode', isDense: true, border: OutlineInputBorder()),
+                                    items: [
+                                      'Direct UPI',
+                                      'Axis Bank Transfer',
+                                      'Cash',
+                                      'Bank Cheque',
+                                      'Demand Draft',
+                                    ].map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
+                                    onChanged: (val) => setDlgState(() => paymentMode = val ?? 'Direct UPI'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: utrCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'UTR / Transaction / Cheque Ref',
+                                      hintText: 'e.g. UPI/42910823901',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: panCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Donor PAN (For 80G Tax Exemption)',
+                                      hintText: 'e.g. ABCDE1234F',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                      prefixIcon: Icon(Icons.badge_outlined),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: dateCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Donation Date (YYYY-MM-DD)',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                      suffixIcon: Icon(Icons.calendar_today, size: 18),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: notesCtrl,
+                              decoration: const InputDecoration(
+                                labelText: 'Internal Notes / Remarks (Optional)',
+                                isDense: true,
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            // Generate 80G Receipt Switch
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF0FDF4),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: const Color(0xFFBBF7D0)),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.receipt_long, color: Color(0xFF16A34A), size: 20),
+                                  const SizedBox(width: 10),
+                                  const Expanded(
+                                    child: Text(
+                                      'Auto-generate & preview Official Section 80G Tax Exemption Certificate',
+                                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF166534)),
+                                    ),
+                                  ),
+                                  Switch(
+                                    value: issueReceipt,
+                                    activeThumbColor: const Color(0xFF16A34A),
+                                    onChanged: (val) => setDlgState(() => issueReceipt = val),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Actions
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF8FAFC),
+                        border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel', style: TextStyle(color: Color(0xFF64748B))),
+                          ),
+                          const SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0F766E),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            icon: const Icon(Icons.check, size: 18),
+                            label: const Text('Save & Issue 80G', style: TextStyle(fontWeight: FontWeight.bold)),
+                            onPressed: () async {
+                              final amt = double.tryParse(amountCtrl.text.trim()) ?? 0;
+                              if (donorCtrl.text.trim().isEmpty || amt <= 0) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Please enter donor name and valid amount.'), backgroundColor: Colors.red),
+                                );
+                                return;
+                              }
+                              Navigator.pop(context);
+
+                              final receiptNo = '80G-${DateTime.now().year}-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+                              final donationRecord = {
+                                'donor_name': donorCtrl.text.trim(),
+                                'name': donorCtrl.text.trim(),
+                                'mobile': phoneCtrl.text.trim(),
+                                'email': emailCtrl.text.trim(),
+                                'amount': amt,
+                                'receipt_no': receiptNo,
+                                'campaign_title': campaign,
+                                'payment_mode': paymentMode,
+                                'utr_number': utrCtrl.text.trim(),
+                                'pan_number': panCtrl.text.trim(),
+                                'date': dateCtrl.text.trim(),
+                                'notes': notesCtrl.text.trim(),
+                                'status': 'paid',
+                                'created_at': dateCtrl.text.trim(),
+                              };
+
+                              await _apiService.createDonation(
+                                data: donationRecord,
+                                token: _authService.currentUser?.token,
+                              );
+
+                              setState(() {
+                                _donations.insert(0, donationRecord);
+                              });
+
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Donation of ₹${amt.toStringAsFixed(0)} recorded with receipt $receiptNo!'),
+                                    backgroundColor: const Color(0xFF10B981),
+                                  ),
+                                );
+                                _loadDashboardData();
+
+                                if (issueReceipt) {
+                                  DocumentPreviewDialog.show(
+                                    context,
+                                    type: DocumentType.taxReceipt80G,
+                                    memberName: donorCtrl.text.trim(),
+                                    memberId: receiptNo,
+                                    donationAmount: amt,
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildFormSectionHeader(IconData icon, String title) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: const Color(0xFF4F46E5)),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+        ),
+      ],
     );
   }
 
@@ -1065,6 +1808,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   // 5. Member Inspection Modal
+  // 5. Member Inspection Modal (Rich dossier matching member_detail.php)
   void _showMemberDetailModal(Map<String, dynamic> member) {
     showDialog(
       context: context,
@@ -1074,80 +1818,148 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         final memberId = (member['member_user_id'] ?? member['id'] ?? 'MBR0004').toString();
         final numericId = _extractNumericId(memberId);
         final email = member['email'] ?? 'Not provided';
-        final phone = member['mobile'] ?? 'Not provided';
+        final phone = (member['mobile'] ?? member['phone'] ?? 'Not provided').toString();
         final district = member['district'] ?? member['city'] ?? 'Gurugram';
         final state = member['state'] ?? 'Haryana';
         final profession = member['profession'] ?? 'Welfare Member';
         final address = member['address'] ?? 'SCO-88, Opp. Sector 12 A';
+        final gender = member['gender']?.toString() ?? 'Male';
+        final dob = member['dob']?.toString() ?? '1990-01-01';
+        final relationType = member['relation_type']?.toString() ?? 'S/O';
+        final relationName = member['relation_name']?.toString() ?? 'Family Head';
+        final bloodGroup = member['blood_group']?.toString() ?? 'O+';
+        final pinCode = member['pin_code']?.toString() ?? '122001';
+        final aadharNo = member['aadhar_no']?.toString() ?? 'XXXX-XXXX-8821';
+        final role = member['role']?.toString() ?? member['designation']?.toString() ?? 'Registered Member';
+        final authority = member['authority']?.toString() ?? 'National Executive Council';
+        final validityStart = member['validity_start']?.toString() ?? member['created_at']?.toString() ?? '2024-08-10';
+        String validityEnd = member['validity_end']?.toString() ?? member['renewal_date']?.toString() ?? '2027-08-10';
+        final paymentMode = member['payment_mode']?.toString() ?? 'Direct UPI';
 
         return StatefulBuilder(
           builder: (context, setDialogState) {
             final isActive = (status == 'active');
             return Dialog(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              clipBehavior: Clip.antiAlias,
               child: Container(
-                width: 560,
-                constraints: const BoxConstraints(maxHeight: 650),
+                width: 620,
+                constraints: const BoxConstraints(maxHeight: 740),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    // Header Banner
                     Container(
                       padding: const EdgeInsets.all(18),
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(colors: [Color(0xFF1E293B), Color(0xFF0F172A)]),
-                        borderRadius: BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
                       ),
                       child: Row(
                         children: [
                           CircleAvatar(
-                            radius: 20,
-                            backgroundColor: Colors.white,
-                            child: Text(name.isNotEmpty ? name[0].toUpperCase() : 'M',
-                                style: const TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold)),
+                            radius: 24,
+                            backgroundColor: const Color(0xFF4F46E5),
+                            child: Text(
+                              name.isNotEmpty ? name[0].toUpperCase() : 'M',
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 14),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                                Text('Member ID: $memberId', style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                                const SizedBox(height: 2),
+                                Text('Member ID: $memberId • $role', style: const TextStyle(color: Colors.white70, fontSize: 11)),
                               ],
                             ),
                           ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
                               color: isActive ? const Color(0xFF10B981) : Colors.orange.shade800,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              isActive ? 'ACTIVE' : 'PENDING REVIEW',
+                              isActive ? 'ACTIVE & VERIFIED' : 'PENDING REVIEW',
                               style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
                             ),
                           ),
+                          const SizedBox(width: 8),
                           IconButton(
-                            icon: const Icon(Icons.close, color: Colors.white),
+                            icon: const Icon(Icons.close, color: Colors.white70),
                             onPressed: () => Navigator.pop(context),
                           ),
                         ],
                       ),
                     ),
-                    Flexible(
+
+                    // Scrollable Member Dossier Body
+                    Expanded(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.all(18),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _buildInfoRow(Icons.phone, 'Mobile Phone', phone),
-                            _buildInfoRow(Icons.email, 'Email Address', email),
-                            _buildInfoRow(Icons.work, 'Profession / Role', profession),
-                            _buildInfoRow(Icons.location_on, 'Location', '$district, $state'),
-                            _buildInfoRow(Icons.home, 'Address', address),
-                            _buildInfoRow(Icons.badge, 'Aadhaar / KYC', 'Verified & Digitally Stamped'),
+                            // 1. Personal Details Dossier
+                            _buildDossierCard(
+                              title: 'Personal Information',
+                              icon: Icons.person_outline,
+                              children: [
+                                _buildInfoRow(Icons.male, 'Gender', gender),
+                                _buildInfoRow(Icons.cake_outlined, 'Date of Birth', dob),
+                                _buildInfoRow(Icons.group_outlined, 'Relation ($relationType)', relationName.isNotEmpty ? relationName : 'N/A'),
+                                _buildInfoRow(Icons.work_outline, 'Profession', profession),
+                                _buildInfoRow(Icons.bloodtype_outlined, 'Blood Group', bloodGroup),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+
+                            // 2. Contact & Address Dossier
+                            _buildDossierCard(
+                              title: 'Contact & Residential Address',
+                              icon: Icons.contact_phone_outlined,
+                              children: [
+                                InkWell(
+                                  onTap: phone != 'Not provided' ? () => UrlHelper.launchPhoneCall(context, phone) : null,
+                                  child: _buildInfoRow(
+                                    Icons.phone_outlined,
+                                    'Mobile Phone',
+                                    phone,
+                                    actionIcon: Icons.call,
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: email != 'Not provided' ? () => UrlHelper.launchEmail(context, email) : null,
+                                  child: _buildInfoRow(
+                                    Icons.email_outlined,
+                                    'Email Address',
+                                    email,
+                                    actionIcon: Icons.email,
+                                  ),
+                                ),
+                                _buildInfoRow(Icons.home_outlined, 'Address', address),
+                                _buildInfoRow(Icons.location_on_outlined, 'City & State', '$district, $state (PIN: $pinCode)'),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+
+                            // 3. Identity, KYC & Validity
+                            _buildDossierCard(
+                              title: 'KYC Verification & Validity Governance',
+                              icon: Icons.verified_user_outlined,
+                              children: [
+                                _buildInfoRow(Icons.fingerprint, 'Aadhaar / KYC', aadharNo),
+                                _buildInfoRow(Icons.shield_outlined, 'Authority', authority),
+                                _buildInfoRow(Icons.date_range, 'Validity Range', '$validityStart  to  $validityEnd'),
+                                _buildInfoRow(Icons.payment, 'Payment Mode', paymentMode),
+                              ],
+                            ),
                             const SizedBox(height: 16),
-                            const Text('Official Documents Preview',
-                                style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+
+                            // 4. Official Documents Preview Studio Bar
+                            const Text('Official Issued Documents',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
                             const SizedBox(height: 8),
                             Wrap(
                               spacing: 8,
@@ -1179,22 +1991,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                     foregroundColor: Colors.white,
                                   ),
                                   icon: const Icon(Icons.edit_note, size: 16),
-                                  label: const Text('Edit in Studio', style: TextStyle(fontSize: 12)),
+                                  label: const Text('Document Studio', style: TextStyle(fontSize: 12)),
                                   onPressed: () {
                                     Navigator.pop(context);
                                     _openDocumentStudioForMember(member, DocumentType.appointmentLetter);
-                                  },
-                                ),
-                                OutlinedButton.icon(
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: const Color(0xFF4F46E5),
-                                    side: const BorderSide(color: Color(0xFF4F46E5)),
-                                  ),
-                                  icon: const Icon(Icons.manage_accounts, size: 16),
-                                  label: const Text('Edit Member Info', style: TextStyle(fontSize: 12)),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _showEditMemberInfoDialog(member);
                                   },
                                 ),
                               ],
@@ -1203,74 +2003,128 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         ),
                       ),
                     ),
+
+                    // Bottom Action Toolbar (Approve, Suspend, Extend Validity, Edit)
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: const BoxDecoration(
+                        color: Color(0xFFF8FAFC),
                         border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
                       ),
-                      child: Row(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        alignment: WrapAlignment.end,
                         children: [
-                          if (!isActive) ...[
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF10B981),
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                ),
-                                icon: const Icon(Icons.check_circle_outline),
-                                label: const Text('Approve & Activate Member', style: TextStyle(fontWeight: FontWeight.bold)),
-                                onPressed: () async {
-                                  await _apiService.updateMemberStatus(
-                                    memberId: numericId,
-                                    status: 'active',
-                                    token: _authService.currentUser?.token,
-                                  );
-                                  setDialogState(() => status = 'active');
-                                  setState(() {
-                                    member['status'] = 'active';
-                                  });
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Member $name activated successfully!'), backgroundColor: const Color(0xFF10B981)),
-                                    );
-                                  }
-                                  _loadDashboardData();
-                                },
-                              ),
+                          // 1. Extend Validity Button (+1 Year)
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF0F766E),
+                              side: const BorderSide(color: Color(0xFF0F766E)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
-                          ] else ...[
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: Colors.orange.shade800,
-                                  side: BorderSide(color: Colors.orange.shade800),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                ),
-                                icon: const Icon(Icons.pause_circle_outline),
-                                label: const Text('Mark as Pending Review'),
-                                onPressed: () async {
-                                  await _apiService.updateMemberStatus(
-                                    memberId: numericId,
-                                    status: 'pending',
-                                    token: _authService.currentUser?.token,
-                                  );
-                                  setDialogState(() => status = 'pending');
-                                  setState(() {
-                                    member['status'] = 'pending';
-                                  });
-                                  if (context.mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Member $name set to pending review.')),
-                                    );
-                                  }
-                                  _loadDashboardData();
-                                },
-                              ),
+                            icon: const Icon(Icons.update, size: 16),
+                            label: const Text('Extend Validity (+1 Year)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            onPressed: () async {
+                              final currentEnd = DateTime.tryParse(validityEnd) ?? DateTime.now();
+                              final extendedEnd = currentEnd.add(const Duration(days: 365));
+                              final newEndStr = "${extendedEnd.year}-${extendedEnd.month.toString().padLeft(2, '0')}-${extendedEnd.day.toString().padLeft(2, '0')}";
+
+                              await _apiService.updateMemberDetails(
+                                memberId: numericId,
+                                data: {'validity_end': newEndStr, 'renewal_date': newEndStr},
+                                token: _authService.currentUser?.token,
+                              );
+
+                              setDialogState(() {
+                                validityEnd = newEndStr;
+                              });
+                              setState(() {
+                                member['validity_end'] = newEndStr;
+                                member['renewal_date'] = newEndStr;
+                              });
+
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Membership validity for $name extended to $newEndStr!'),
+                                    backgroundColor: const Color(0xFF10B981),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+
+                          // 2. Edit Member Info
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF4F46E5),
+                              side: const BorderSide(color: Color(0xFF4F46E5)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                             ),
-                          ],
+                            icon: const Icon(Icons.manage_accounts, size: 16),
+                            label: const Text('Edit Member Info', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                            onPressed: () {
+                              Navigator.pop(context);
+                              _showEditMemberInfoDialog(member);
+                            },
+                          ),
+
+                          // 3. Status Action Button
+                          if (!isActive)
+                            ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF10B981),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              icon: const Icon(Icons.check_circle_outline, size: 16),
+                              label: const Text('Approve & Activate', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                              onPressed: () async {
+                                await _apiService.updateMemberStatus(
+                                  memberId: numericId,
+                                  status: 'active',
+                                  token: _authService.currentUser?.token,
+                                );
+                                setDialogState(() => status = 'active');
+                                setState(() {
+                                  member['status'] = 'active';
+                                });
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Member $name activated successfully!'), backgroundColor: const Color(0xFF10B981)),
+                                  );
+                                }
+                                _loadDashboardData();
+                              },
+                            )
+                          else
+                            OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.orange.shade800,
+                                side: BorderSide(color: Colors.orange.shade800),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                              icon: const Icon(Icons.pause_circle_outline, size: 16),
+                              label: const Text('Mark as Pending', style: TextStyle(fontSize: 12)),
+                              onPressed: () async {
+                                await _apiService.updateMemberStatus(
+                                  memberId: numericId,
+                                  status: 'pending',
+                                  token: _authService.currentUser?.token,
+                                );
+                                setDialogState(() => status = 'pending');
+                                setState(() {
+                                  member['status'] = 'pending';
+                                });
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('Member $name set to pending review.')),
+                                  );
+                                }
+                                _loadDashboardData();
+                              },
+                            ),
                         ],
                       ),
                     ),
@@ -1284,22 +2138,56 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  Widget _buildDossierCard({required String title, required IconData icon, required List<Widget> children}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: const Color(0xFF4F46E5)),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF334155)),
+              ),
+            ],
+          ),
+          const Divider(height: 16, color: Color(0xFFE2E8F0)),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value, {IconData? actionIcon}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: const Color(0xFF4F46E5)),
+          Icon(icon, size: 15, color: const Color(0xFF64748B)),
           const SizedBox(width: 8),
           SizedBox(
             width: 120,
-            child: Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.w500)),
+            child: Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
           ),
           Expanded(
-            child: Text(value.isNotEmpty ? value : 'N/A',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+            child: Text(
+              value.isNotEmpty ? value : 'N/A',
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+            ),
           ),
+          if (actionIcon != null) ...[
+            const SizedBox(width: 6),
+            Icon(actionIcon, size: 14, color: const Color(0xFF4F46E5)),
+          ],
         ],
       ),
     );
@@ -1487,13 +2375,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 if (_operationsExpanded) ...[
                   _buildSubNavItem(
                     route: 'donations',
-                    title: 'Donations & 80G 💰',
+                    title: 'Donations & 80G',
                     icon: Icons.payments_outlined,
                     isDrawer: isDrawer,
                   ),
                   _buildSubNavItem(
                     route: 'campaigns',
-                    title: 'Campaigns 🎯',
+                    title: 'Campaigns',
                     icon: Icons.campaign_outlined,
                     badgeText: '${_campaigns.length}',
                     badgeColor: const Color(0xFF4F46E5),
@@ -1501,19 +2389,19 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                   _buildSubNavItem(
                     route: 'events',
-                    title: 'Events 📅',
+                    title: 'Events',
                     icon: Icons.event_outlined,
                     isDrawer: isDrawer,
                   ),
                   _buildSubNavItem(
                     route: 'projects',
-                    title: 'Projects 🏗️',
+                    title: 'Projects',
                     icon: Icons.work_outline,
                     isDrawer: isDrawer,
                   ),
                   _buildSubNavItem(
                     route: 'certificates',
-                    title: 'Certificates & IDs 📜',
+                    title: 'Certificates & IDs',
                     icon: Icons.workspace_premium_outlined,
                     isDrawer: isDrawer,
                   ),
@@ -1531,25 +2419,25 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 if (_contentExpanded) ...[
                   _buildSubNavItem(
                     route: 'blog',
-                    title: 'Manage Blog 📝',
+                    title: 'Manage Blog',
                     icon: Icons.edit_note,
                     isDrawer: isDrawer,
                   ),
                   _buildSubNavItem(
                     route: 'gallery',
-                    title: 'Photo Gallery 🖼️',
+                    title: 'Photo Gallery',
                     icon: Icons.image_outlined,
                     isDrawer: isDrawer,
                   ),
                   _buildSubNavItem(
                     route: 'media',
-                    title: 'Media Manager 📁',
+                    title: 'Media Manager',
                     icon: Icons.folder_outlined,
                     isDrawer: isDrawer,
                   ),
                   _buildSubNavItem(
                     route: 'testimonials',
-                    title: 'Reviews & Approval ⭐',
+                    title: 'Reviews & Approval',
                     icon: Icons.rate_review_outlined,
                     isDrawer: isDrawer,
                   ),
@@ -1567,13 +2455,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 if (_analyticsExpanded) ...[
                   _buildSubNavItem(
                     route: 'reports',
-                    title: 'Reports & Audits 📊',
+                    title: 'Reports & Audits',
                     icon: Icons.bar_chart_outlined,
                     isDrawer: isDrawer,
                   ),
                   _buildSubNavItem(
                     route: 'support',
-                    title: 'Support Tickets 💬',
+                    title: 'Support Tickets',
                     icon: Icons.forum_outlined,
                     badgeText: '2',
                     badgeColor: const Color(0xFFF59E0B),
@@ -1601,7 +2489,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                   _buildSubNavItem(
                     route: 'activity_logs',
-                    title: 'Activity Logs 🧠',
+                    title: 'Activity Logs',
                     icon: Icons.history,
                     badgeText: '${_activities.length}',
                     badgeColor: const Color(0xFF64748B),
@@ -1609,8 +2497,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                   _buildSubNavItem(
                     route: 'settings',
-                    title: 'Website Settings ⚙️',
-                    icon: Icons.settings,
+                    title: 'Website Settings',
+                    icon: Icons.settings_outlined,
                     isDrawer: isDrawer,
                   ),
                 ],
@@ -2194,55 +3082,58 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 6),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF64748B),
-                          fontWeight: FontWeight.w600,
-                          height: 1.1,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          value,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 2),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF1E293B),
+                            fontSize: 12,
+                            color: Color(0xFF64748B),
+                            fontWeight: FontWeight.w600,
+                            height: 1.1,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 3),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            value,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  width: 36,
-                  height: 36,
-                  decoration: BoxDecoration(
-                    color: themeColor.withAlpha(22),
-                    borderRadius: BorderRadius.circular(10),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: themeColor.withAlpha(22),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(icon, color: themeColor, size: 17),
                   ),
-                  child: Icon(icon, color: themeColor, size: 19),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           Column(
@@ -2378,101 +3269,223 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Row(
-              children: [
-                Expanded(flex: 4, child: Text('FEATURE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-                Expanded(flex: 2, child: Text('STATUS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-                Expanded(flex: 2, child: Text('PRIORITY', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-                Expanded(flex: 3, child: Text('GOAL', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
-              ],
-            ),
-          ),
-          const SizedBox(height: 6),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _campaigns.length,
-            separatorBuilder: (context, index) => const Divider(height: 12, color: Color(0xFFF1F5F9)),
-            itemBuilder: (context, index) {
-              final c = _campaigns[index];
-              final isComplete = (c['status'] == 'COMPLETE');
-              final raised = _parseDouble(c['raised'], 0.0);
-              final goal = _parseDouble(c['goal'], 100000.0);
-              final pct = (raised / goal).clamp(0.0, 1.0);
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 480;
+              if (isNarrow) {
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: _campaigns.length,
+                  separatorBuilder: (context, index) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final c = _campaigns[index];
+                    final isComplete = (c['status'] == 'COMPLETE');
+                    final raised = _parseDouble(c['raised'], 0.0);
+                    final goal = _parseDouble(c['goal'], 100000.0);
+                    final pct = (raised / goal).clamp(0.0, 1.0);
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 4,
-                      child: Text(
-                        c['title'] ?? 'Campaign',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                    return Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: isComplete ? const Color(0xFF10B981) : const Color(0xFF3B82F6),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          c['status'] ?? 'ACTIVE',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        c['priority'] ?? 'Medium',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 11, color: Color(0xFF475569)),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 3,
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  c['title'] ?? 'Campaign',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: isComplete ? const Color(0xFF10B981) : const Color(0xFF3B82F6),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  c['status'] ?? 'ACTIVE',
+                                  style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Flexible(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                                  ),
+                                  child: Text(
+                                    'Priority: ${c['priority'] ?? 'Medium'}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, color: Color(0xFF475569)),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${(pct * 100).toInt()}% funded',
+                                style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF093C30)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
                             child: LinearProgressIndicator(
                               value: pct,
-                              minHeight: 5,
+                              minHeight: 6,
                               backgroundColor: const Color(0xFFE2E8F0),
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 isComplete ? const Color(0xFF10B981) : const Color(0xFF093C30),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 3),
-                          Text(
-                            '${(pct * 100).toInt()}%',
-                            style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
-                          ),
                         ],
                       ),
+                    );
+                  },
+                );
+              }
+
+              // Wide view: Table layout
+              return Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
-                ),
+                    child: const Row(
+                      children: [
+                        Expanded(flex: 4, child: Text('FEATURE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
+                        Expanded(flex: 2, child: Text('STATUS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
+                        Expanded(flex: 2, child: Text('PRIORITY', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
+                        Expanded(flex: 3, child: Text('GOAL', textAlign: TextAlign.center, style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFF64748B)))),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _campaigns.length,
+                    separatorBuilder: (context, index) => const Divider(height: 12, color: Color(0xFFF1F5F9)),
+                    itemBuilder: (context, index) {
+                      final c = _campaigns[index];
+                      final isComplete = (c['status'] == 'COMPLETE');
+                      final raised = _parseDouble(c['raised'], 0.0);
+                      final goal = _parseDouble(c['goal'], 100000.0);
+                      final pct = (raised / goal).clamp(0.0, 1.0);
+
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 4,
+                              child: Text(
+                                c['title'] ?? 'Campaign',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: isComplete ? const Color(0xFF10B981) : const Color(0xFF3B82F6),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  c['status'] ?? 'ACTIVE',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                c['priority'] ?? 'Medium',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 11, color: Color(0xFF475569)),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: Column(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: LinearProgressIndicator(
+                                      value: pct,
+                                      minHeight: 5,
+                                      backgroundColor: const Color(0xFFE2E8F0),
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        isComplete ? const Color(0xFF10B981) : const Color(0xFF093C30),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    '${(pct * 100).toInt()}%',
+                                    style: const TextStyle(fontSize: 10, color: Color(0xFF64748B)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
               );
             },
           ),
         ],
       ),
     );
+  }
+
+  // Recent Activity Helper
+  (String, IconData, Color) _formatActivity(String? rawAction, String? detail) {
+    final key = (rawAction ?? detail ?? '').toLowerCase().trim();
+    if (key.contains('donation')) {
+      return ('Manual Donation Recorded & Receipt Issued', Icons.volunteer_activism, const Color(0xFF10B981));
+    } else if (key.contains('collect') || key.contains('fee') || key.contains('renew')) {
+      return ('Annual Membership Validity Extended', Icons.card_membership, const Color(0xFF093C30));
+    } else if (key.contains('create_member') || key.contains('new_member') || key.contains('member')) {
+      return ('New Member Profile Registered', Icons.person_add_alt_1, const Color(0xFF2563EB));
+    } else if (key.contains('ticket') || key.contains('support') || key.contains('resolve')) {
+      return ('Support Ticket Addressed', Icons.support_agent, const Color(0xFF8B5CF6));
+    } else if (key.contains('campaign') || key.contains('initiative')) {
+      return ('Initiative Campaign Updated', Icons.campaign, const Color(0xFFD97706));
+    }
+    final raw = (rawAction ?? detail ?? 'Action Logged').replaceAll('_', ' ');
+    final cleaned = raw.split(' ').map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}' : '').join(' ');
+    return (cleaned, Icons.history, const Color(0xFF64748B));
   }
 
   // Recent Activity Card
@@ -2522,25 +3535,33 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             separatorBuilder: (context, index) => const SizedBox(height: 14),
             itemBuilder: (context, index) {
               final act = _activities[index];
+              final (title, icon, color) = _formatActivity(act['action']?.toString(), act['detail']?.toString());
               return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    margin: const EdgeInsets.only(top: 2),
-                    child: const Icon(Icons.history_toggle_off, size: 16, color: Color(0xFFEF4444)),
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: color.withAlpha(25),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, size: 16, color: color),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          act['action'] ?? act['detail'] ?? 'Admin action logged',
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          act['created_at'] ?? '20 Apr 2026',
+                          act['created_at']?.toString() ?? 'Just now',
                           style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
                         ),
                       ],
@@ -2995,35 +4016,77 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             itemBuilder: (context, index) {
               final m = _members[index];
               final isPaid = (m['fee_status'] == 'Paid');
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: isPaid ? const Color(0xFF10B981).withAlpha(25) : Colors.red.withAlpha(25),
-                  child: Icon(isPaid ? Icons.check : Icons.access_time, color: isPaid ? const Color(0xFF10B981) : Colors.red),
-                ),
-                title: Text(m['name'] ?? 'Member', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                subtitle: Text('ID: ${m['member_user_id'] ?? m['id']} • Validity: ${m['renewal_date'] ?? "1 Year"}', style: const TextStyle(fontSize: 11)),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
+              final memberName = m['name'] ?? 'Member';
+              final memberId = m['member_user_id'] ?? m['id'] ?? '';
+              final validity = m['renewal_date'] ?? "1 Year";
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text(isPaid ? 'Fee Paid (₹1500)' : 'Fee Due (₹1500)',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: isPaid ? const Color(0xFF10B981) : Colors.red)),
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundColor: isPaid ? const Color(0xFF10B981).withAlpha(25) : Colors.red.withAlpha(25),
+                      child: Icon(isPaid ? Icons.check : Icons.access_time, color: isPaid ? const Color(0xFF10B981) : Colors.red, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            memberName,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E293B)),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 3),
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 6,
+                            runSpacing: 2,
+                            children: [
+                              Text('ID: $memberId', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                              const Text('•', style: TextStyle(fontSize: 11, color: Color(0xFFCBD5E1))),
+                              Text('Validity: $validity', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                decoration: BoxDecoration(
+                                  color: isPaid ? const Color(0xFF10B981).withAlpha(20) : Colors.red.withAlpha(20),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  isPaid ? 'Fee Paid (₹1500)' : 'Fee Due (₹1500)',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10, color: isPaid ? const Color(0xFF10B981) : Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                     const SizedBox(width: 8),
                     OutlinedButton(
-                      style: OutlinedButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                      style: OutlinedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
                       onPressed: () {
-                        setState(() {
-                          m['fee_status'] = 'Paid';
-                          m['renewal_date'] = '15 Aug 2027';
-                        });
-                        DocumentPreviewDialog.show(
-                          context,
-                          type: DocumentType.taxReceipt80G,
-                          memberName: m['name'],
-                          memberId: 'RNW-${m['id']}-2026',
-                          donationAmount: 1500.0,
-                        );
+                        if (isPaid) {
+                          DocumentPreviewDialog.show(
+                            context,
+                            type: DocumentType.taxReceipt80G,
+                            memberName: m['name']?.toString() ?? 'Member',
+                            memberId: 'RNW-${m['id']}-2026',
+                            donationAmount: 1500.0,
+                            receiptNumber: m['receipt_no']?.toString(),
+                          );
+                        } else {
+                          _showCollectFeeDialog(m);
+                        }
                       },
-                      child: Text(isPaid ? 'Receipt' : 'Collect Fee', style: const TextStyle(fontSize: 11)),
+                      child: Text(isPaid ? 'Receipt' : 'Collect Fee', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -3034,6 +4097,481 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       ],
     );
   }
+
+  void _showCollectFeeDialog(Map<String, dynamic> m) {
+    final memberName = m['name']?.toString() ?? 'Member';
+    final memberId = m['member_id_code']?.toString() ?? m['id']?.toString() ?? 'MBR0001';
+    final memberEmail = m['email']?.toString() ?? '';
+    final memberPhone = m['mobile']?.toString() ?? '';
+    final currentValidity = m['validity_end']?.toString() ?? m['renewal_date']?.toString() ?? '1 Year';
+
+    final amtCtrl = TextEditingController(text: '1500');
+    final defaultRef = 'ADM-RNW-${DateTime.now().year}-${DateTime.now().millisecondsSinceEpoch % 90000 + 10000}';
+    final refCtrl = TextEditingController(text: defaultRef);
+    final notesCtrl = TextEditingController(text: 'Approved & renewed by Administrator');
+
+    int extensionOption = 0; // 0: +1 Year, 1: +2 Years, 2: Lifetime, 3: Custom Date
+    DateTime customDate = DateTime.now().add(const Duration(days: 365));
+
+    int paymentModeOption = 0; // 0: Cash, 1: Bank Transfer / Cheque, 2: UPI / QR, 3: Fee Waived / Honorary (₹0)
+    bool sendEmailNotification = true;
+    bool isProcessing = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) {
+        return StatefulBuilder(
+          builder: (sbCtx, setModalState) {
+            String calculatedNewValidity;
+            DateTime baseDate = DateTime.now();
+            if (currentValidity.isNotEmpty && currentValidity.contains('-')) {
+              try {
+                final parsed = DateTime.parse(currentValidity);
+                if (parsed.isAfter(DateTime.now())) baseDate = parsed;
+              } catch (_) {}
+            }
+
+            if (extensionOption == 0) {
+              final newDt = DateTime(baseDate.year + 1, baseDate.month, baseDate.day);
+              calculatedNewValidity = "${newDt.year}-${newDt.month.toString().padLeft(2, '0')}-${newDt.day.toString().padLeft(2, '0')}";
+            } else if (extensionOption == 1) {
+              final newDt = DateTime(baseDate.year + 2, baseDate.month, baseDate.day);
+              calculatedNewValidity = "${newDt.year}-${newDt.month.toString().padLeft(2, '0')}-${newDt.day.toString().padLeft(2, '0')}";
+            } else if (extensionOption == 2) {
+              calculatedNewValidity = "2099-12-31";
+            } else {
+              calculatedNewValidity = "${customDate.year}-${customDate.month.toString().padLeft(2, '0')}-${customDate.day.toString().padLeft(2, '0')}";
+            }
+
+            final double feeAmount = double.tryParse(amtCtrl.text.trim()) ?? 0.0;
+
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              child: Container(
+                width: 580,
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(dialogCtx).size.height * 0.90,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Header
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF10B981).withAlpha(40),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.manage_accounts_outlined, color: Color(0xFF34D399), size: 22),
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Admin Membership Renewal',
+                                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  'Administrative validity extension & fee governance',
+                                  style: TextStyle(color: Colors.white70, fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white70),
+                            onPressed: isProcessing ? null : () => Navigator.pop(dialogCtx),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Scrollable Body
+                    Flexible(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Member Dossier Summary Card
+                            Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: const Color(0xFFE2E8F0)),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          memberName,
+                                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF59E0B).withAlpha(25),
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: const Text('RENEWAL DUE', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFD97706))),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text('Member ID: $memberId • Mobile: ${memberPhone.isNotEmpty ? memberPhone : "Registered"}', style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                                  if (memberEmail.isNotEmpty) ...[
+                                    const SizedBox(height: 2),
+                                    Text('Member Email: $memberEmail', style: const TextStyle(fontSize: 11, color: Color(0xFF4F46E5), fontWeight: FontWeight.w500)),
+                                  ],
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFECFDF5),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(color: const Color(0xFFA7F3D0)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Icon(Icons.event_available, size: 16, color: Color(0xFF059669)),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'Current: $currentValidity ➜ New Validity: $calculatedNewValidity',
+                                            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF065F46)),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // 1. Extension Period Selector (Admin Authority)
+                            const Text('Validity Extension Period', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF334155))),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                _buildAdminChoiceChip('+1 Year Extension', 0, extensionOption, (i) => setModalState(() => extensionOption = i)),
+                                _buildAdminChoiceChip('+2 Years Extension', 1, extensionOption, (i) => setModalState(() => extensionOption = i)),
+                                _buildAdminChoiceChip('Lifetime Validity', 2, extensionOption, (i) => setModalState(() => extensionOption = i)),
+                                _buildAdminChoiceChip('Custom Date', 3, extensionOption, (i) async {
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: customDate,
+                                    firstDate: DateTime.now(),
+                                    lastDate: DateTime(2050),
+                                  );
+                                  if (picked != null) {
+                                    setModalState(() {
+                                      customDate = picked;
+                                      extensionOption = 3;
+                                    });
+                                  }
+                                }),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+
+                            // 2. Payment & Governance Mode
+                            const Text('Fee Collection / Governance Mode', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF334155))),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                _buildAdminChoiceChip('Cash Received (Office/Field)', 0, paymentModeOption, (i) {
+                                  setModalState(() {
+                                    paymentModeOption = i;
+                                    if (amtCtrl.text == '0' || amtCtrl.text.isEmpty) amtCtrl.text = '1500';
+                                  });
+                                }),
+                                _buildAdminChoiceChip('Bank Transfer / Cheque', 1, paymentModeOption, (i) {
+                                  setModalState(() {
+                                    paymentModeOption = i;
+                                    if (amtCtrl.text == '0' || amtCtrl.text.isEmpty) amtCtrl.text = '1500';
+                                  });
+                                }),
+                                _buildAdminChoiceChip('UPI / Direct QR', 2, paymentModeOption, (i) {
+                                  setModalState(() {
+                                    paymentModeOption = i;
+                                    if (amtCtrl.text == '0' || amtCtrl.text.isEmpty) amtCtrl.text = '1500';
+                                  });
+                                }),
+                                _buildAdminChoiceChip('Fee Waived / Honorary (₹0)', 3, paymentModeOption, (i) {
+                                  setModalState(() {
+                                    paymentModeOption = i;
+                                    amtCtrl.text = '0';
+                                  });
+                                }),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+
+                            // 3. Fee Amount & Receipt Reference Row
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 4,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Fee Amount (INR)', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF334155))),
+                                      const SizedBox(height: 6),
+                                      TextField(
+                                        controller: amtCtrl,
+                                        keyboardType: TextInputType.number,
+                                        decoration: const InputDecoration(
+                                          prefixText: '₹ ',
+                                          border: OutlineInputBorder(),
+                                          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  flex: 6,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Receipt / Reference No.', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF334155))),
+                                      const SizedBox(height: 6),
+                                      TextField(
+                                        controller: refCtrl,
+                                        decoration: const InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+
+                            // 4. Notes / Authority Remarks
+                            const Text('Administrative Remarks / Notes', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF334155))),
+                            const SizedBox(height: 6),
+                            TextField(
+                              controller: notesCtrl,
+                              decoration: const InputDecoration(
+                                hintText: 'e.g. Approved by Executive Committee or Office Cash receipt',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              ),
+                            ),
+                            const SizedBox(height: 14),
+
+                            // 5. Send Email Toggle
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  Checkbox(
+                                    value: sendEmailNotification,
+                                    activeColor: const Color(0xFF10B981),
+                                    onChanged: (val) {
+                                      if (val != null) setModalState(() => sendEmailNotification = val);
+                                    },
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      memberEmail.isNotEmpty
+                                          ? 'Dispatch Official Renewal & Validity confirmation email to $memberEmail'
+                                          : 'Dispatch confirmation email to member on record',
+                                      style: const TextStyle(fontSize: 11, color: Color(0xFF334155)),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Footer Action Buttons
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      decoration: const BoxDecoration(
+                        border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+                      ),
+                      child: Row(
+                        children: [
+                          TextButton(
+                            onPressed: isProcessing ? null : () => Navigator.pop(dialogCtx),
+                            child: const Text('Cancel', style: TextStyle(color: Color(0xFF64748B))),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF10B981),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                              icon: isProcessing
+                                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                                  : const Icon(Icons.check_circle_outline, size: 18),
+                              label: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  isProcessing ? 'Applying Renewal...' : 'Approve & Extend Validity',
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            onPressed: isProcessing ? null : () async {
+                              setModalState(() => isProcessing = true);
+
+                              final String methodName = [
+                                'Cash Collection (Office/Field)',
+                                'Bank Transfer / Cheque',
+                                'UPI / Direct QR',
+                                'Fee Waived / Honorary Extension',
+                              ][paymentModeOption];
+
+                              final String enteredRef = refCtrl.text.trim().isNotEmpty
+                                  ? refCtrl.text.trim()
+                                  : defaultRef;
+
+                              String receiptNumber = enteredRef;
+                              String finalValidity = calculatedNewValidity;
+
+                              try {
+                                final memberIntId = int.tryParse(m['id'].toString()) ?? 1;
+                                final res = await _apiService.collectMemberFee(
+                                  memberId: memberIntId,
+                                  amount: feeAmount,
+                                  paymentMethod: methodName,
+                                  transactionRef: enteredRef,
+                                  senderBank: 'Shaheed Foundation Admin Desk',
+                                  notes: notesCtrl.text.trim(),
+                                  sendEmail: sendEmailNotification,
+                                  token: _authService.currentUser?.token,
+                                );
+                                if (res.isSuccess && res.data != null && res.data is Map) {
+                                  final data = res.data as Map;
+                                  if (data['receipt_no'] != null) receiptNumber = data['receipt_no'].toString();
+                                  if (data['new_validity'] != null) finalValidity = data['new_validity'].toString();
+                                }
+                              } catch (_) {}
+
+                              if (dialogCtx.mounted) Navigator.pop(dialogCtx);
+
+                              setState(() {
+                                m['fee_status'] = 'Paid';
+                                m['renewal_date'] = finalValidity;
+                                m['validity_end'] = finalValidity;
+                                m['payment_method'] = methodName;
+                                m['utr'] = enteredRef;
+                                m['receipt_no'] = receiptNumber;
+                              });
+
+                              if (!mounted) return;
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Membership renewed for $memberName! Validity extended to $finalValidity ($methodName).${sendEmailNotification && memberEmail.isNotEmpty ? " Official confirmation email dispatched to $memberEmail." : ""}',
+                                  ),
+                                  backgroundColor: const Color(0xFF10B981),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+
+                              if (feeAmount > 0) {
+                                DocumentPreviewDialog.show(
+                                  context,
+                                  type: DocumentType.taxReceipt80G,
+                                  memberName: memberName,
+                                  memberId: 'RNW-${m['id']}-2026',
+                                  donationAmount: feeAmount,
+                                  receiptNumber: receiptNumber,
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildAdminChoiceChip(String label, int index, int selectedIndex, Function(int) onSelect) {
+    final isSel = index == selectedIndex;
+    return InkWell(
+      onTap: () => onSelect(index),
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: isSel ? const Color(0xFF10B981).withAlpha(25) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSel ? const Color(0xFF10B981) : const Color(0xFFCBD5E1),
+            width: isSel ? 1.5 : 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 11.5,
+            fontWeight: isSel ? FontWeight.bold : FontWeight.w500,
+            color: isSel ? const Color(0xFF065F46) : const Color(0xFF334155),
+          ),
+        ),
+      ),
+    );
+  }
+
 
   Widget _buildSummaryMiniCard(String title, String value, Color color) {
     return Container(
@@ -3051,10 +4589,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   // ==========================================
-  // 5. DONATIONS MODULE (WITH SAFE AMOUNT PARSING)
+  // 5. DONATIONS MODULE (WITH SAFE AMOUNT PARSING & KPI ANALYTICS)
   // ==========================================
   Widget _buildDonationsModule() {
     final filtered = _filteredDonations;
+    final totalAmount = _donations.fold<double>(0.0, (sum, d) => sum + _parseDouble(d['amount']));
+    final totalCount = _donations.length;
+    final avgAmount = totalCount > 0 ? totalAmount / totalCount : 0.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -3067,7 +4609,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 children: const [
                   Text('Donations & 80G Receipts Ledger', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
                   SizedBox(height: 2),
-                  Text('Recorded contributions and tax exemption certificates', style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                  Text('Comprehensive ledger of tax-exempt contributions & automated 80G certificates (donations_list.php)', style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
                 ],
               ),
             ),
@@ -3079,16 +4621,40 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               icon: const Icon(Icons.add_card, size: 16),
-              label: const Text('Record Donation'),
+              label: const Text('Add Donation'),
               onPressed: _showRecordDonationDialog,
             ),
           ],
         ),
         const SizedBox(height: 16),
+
+        // KPI Summary Cards (Matching donations_list.php analytics)
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth >= 600;
+            final kpiCards = [
+              _buildSummaryMiniCard('Total Paid Donations', '₹${totalAmount.toStringAsFixed(0)}', const Color(0xFF10B981)),
+              _buildSummaryMiniCard('Successful Receipts', '$totalCount', const Color(0xFF4F46E5)),
+              _buildSummaryMiniCard('Average Contribution', '₹${avgAmount.toStringAsFixed(0)}', const Color(0xFF0F766E)),
+            ];
+
+            if (isWide) {
+              return Row(
+                children: kpiCards.map((c) => Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: c))).toList(),
+              );
+            } else {
+              return Column(
+                children: kpiCards.map((c) => Padding(padding: const EdgeInsets.only(bottom: 8), child: c)).toList(),
+              );
+            }
+          },
+        ),
+        const SizedBox(height: 16),
+
         TextField(
           controller: _donationSearchCtrl,
           decoration: InputDecoration(
-            hintText: 'Search donations by donor name, phone or 80G receipt number...',
+            hintText: 'Search donations by donor name, phone, UTR or 80G receipt number...',
             prefixIcon: const Icon(Icons.search, color: Color(0xFF10B981)),
             filled: true,
             fillColor: Colors.white,
@@ -3109,48 +4675,107 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             final amt = _parseDouble(d['amount']);
             final donorName = d['name'] ?? d['donor_name'] ?? 'Anonymous Donor';
             final receipt = d['receipt_no'] ?? '80G-${DateTime.now().year}-$index';
+            final mode = d['payment_mode']?.toString() ?? 'Direct UPI';
+            final utr = d['utr_number']?.toString() ?? '';
+            final pan = d['pan_number']?.toString() ?? '';
+            final campaign = d['campaign_title']?.toString() ?? 'General Welfare';
 
             return Container(
+              margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
-              child: ListTile(
-                leading: Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(color: const Color(0xFF10B981).withAlpha(25), borderRadius: BorderRadius.circular(8)),
-                  child: const Icon(Icons.receipt_long, color: Color(0xFF10B981), size: 22),
-                ),
-                title: Text(donorName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-                subtitle: Text('Ref: $receipt • ${d['created_at'] ?? "Recent"}', style: const TextStyle(fontSize: 11)),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '₹${amt.toStringAsFixed(0)}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF10B981)),
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withAlpha(25),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    const SizedBox(width: 12),
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    child: const Icon(Icons.receipt_long, color: Color(0xFF10B981), size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                donorName,
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E293B)),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(color: const Color(0xFFCBD5E1)),
+                              ),
+                              child: Text(mode, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          'Receipt: $receipt • $campaign',
+                          style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (utr.isNotEmpty || pan.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              [if (utr.isNotEmpty) 'UTR: $utr', if (pan.isNotEmpty) 'PAN: $pan'].join(' • '),
+                              style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '₹${amt.toStringAsFixed(0)}',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF10B981)),
                       ),
-                      onPressed: () {
-                        DocumentPreviewDialog.show(
-                          context,
-                          type: DocumentType.taxReceipt80G,
-                          memberName: donorName,
-                          memberId: receipt,
-                          donationAmount: amt,
-                        );
-                      },
-                      child: const Text('80G Receipt', style: TextStyle(fontSize: 11)),
-                    ),
-                  ],
-                ),
+                      const SizedBox(height: 4),
+                      OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          minimumSize: Size.zero,
+                        ),
+                        onPressed: () {
+                          DocumentPreviewDialog.show(
+                            context,
+                            type: DocumentType.taxReceipt80G,
+                            memberName: donorName,
+                            memberId: receipt,
+                            donationAmount: amt,
+                          );
+                        },
+                        child: const Text('80G Receipt', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             );
           },
@@ -3376,96 +5001,397 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final memberId = (member['member_user_id'] ?? member['id'] ?? 'MBR0004').toString();
     final numericId = _extractNumericId(memberId);
     final nameCtrl = TextEditingController(text: member['name'] ?? '');
-    final phoneCtrl = TextEditingController(text: member['mobile'] ?? '');
+    final phoneCtrl = TextEditingController(text: (member['mobile'] ?? member['phone'] ?? '').toString());
     final emailCtrl = TextEditingController(text: member['email'] ?? '');
+    final relationNameCtrl = TextEditingController(text: member['relation_name'] ?? '');
     final professionCtrl = TextEditingController(text: member['profession'] ?? '');
-    final bloodGroupCtrl = TextEditingController(text: member['blood_group'] ?? 'O+');
     final districtCtrl = TextEditingController(text: member['district'] ?? member['city'] ?? '');
     final stateCtrl = TextEditingController(text: member['state'] ?? 'Haryana');
+    final pinCodeCtrl = TextEditingController(text: member['pin_code'] ?? '122001');
     final addressCtrl = TextEditingController(text: member['address'] ?? '');
+    final aadharCtrl = TextEditingController(text: member['aadhar_no'] ?? '');
+    final roleCtrl = TextEditingController(text: member['role'] ?? member['designation'] ?? 'Life Welfare Member');
+    final authorityCtrl = TextEditingController(text: member['authority'] ?? 'National Executive Council');
+    final dobCtrl = TextEditingController(text: member['dob'] ?? '1990-01-01');
+    final validityStartCtrl = TextEditingController(text: member['validity_start'] ?? member['created_at'] ?? '2024-08-10');
+    final validityEndCtrl = TextEditingController(text: member['validity_end'] ?? member['renewal_date'] ?? '2027-08-10');
+
+    String gender = member['gender']?.toString() ?? 'Male';
+    String relationType = member['relation_type']?.toString() ?? 'S/O';
+    String bloodGroup = member['blood_group']?.toString() ?? 'O+';
+    String status = member['status']?.toString().toLowerCase() ?? 'active';
+    String paymentMode = member['payment_mode']?.toString() ?? 'Direct UPI';
 
     showDialog(
       context: context,
       builder: (ctx) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Row(
-            children: [
-              const Icon(Icons.manage_accounts, color: Color(0xFF4F46E5)),
-              const SizedBox(width: 10),
-              Text('Edit Member $memberId', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Full Name *', isDense: true, border: OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: phoneCtrl, decoration: const InputDecoration(labelText: 'Mobile Phone *', isDense: true, border: OutlineInputBorder()), keyboardType: TextInputType.phone),
-                const SizedBox(height: 10),
-                TextField(controller: emailCtrl, decoration: const InputDecoration(labelText: 'Email Address', isDense: true, border: OutlineInputBorder()), keyboardType: TextInputType.emailAddress),
-                const SizedBox(height: 10),
-                TextField(controller: professionCtrl, decoration: const InputDecoration(labelText: 'Profession / Designation', isDense: true, border: OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: bloodGroupCtrl, decoration: const InputDecoration(labelText: 'Blood Group', isDense: true, border: OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: districtCtrl, decoration: const InputDecoration(labelText: 'District / City', isDense: true, border: OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: stateCtrl, decoration: const InputDecoration(labelText: 'State', isDense: true, border: OutlineInputBorder())),
-                const SizedBox(height: 10),
-                TextField(controller: addressCtrl, decoration: const InputDecoration(labelText: 'Address', isDense: true, border: OutlineInputBorder())),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF4F46E5),
-                foregroundColor: Colors.white,
+        return StatefulBuilder(
+          builder: (dialogCtx, setDlgState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              clipBehavior: Clip.antiAlias,
+              child: Container(
+                width: 640,
+                constraints: const BoxConstraints(maxHeight: 720),
+                child: Column(
+                  children: [
+                    // Header
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFF1E293B), Color(0xFF0F172A)],
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF4F46E5).withAlpha(40),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.manage_accounts, color: Colors.white, size: 22),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Edit Member Dossier ($memberId)',
+                                  style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold),
+                                ),
+                                const SizedBox(height: 2),
+                                const Text(
+                                  'Update KYC, identity, relation, contact & validity governance',
+                                  style: TextStyle(color: Colors.white70, fontSize: 11),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.white70),
+                            onPressed: () => Navigator.pop(ctx),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Scrollable Form
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 1. Personal Details
+                            _buildFormSectionHeader(Icons.person, '1. Personal Information'),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: nameCtrl,
+                              decoration: const InputDecoration(labelText: 'Full Legal Name *', isDense: true, border: OutlineInputBorder()),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: ['Male', 'Female', 'Other'].contains(gender) ? gender : 'Male',
+                                    decoration: const InputDecoration(labelText: 'Gender', isDense: true, border: OutlineInputBorder()),
+                                    items: ['Male', 'Female', 'Other'].map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+                                    onChanged: (val) => setDlgState(() => gender = val ?? 'Male'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: dobCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Date of Birth (YYYY-MM-DD)',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                      suffixIcon: Icon(Icons.calendar_today, size: 18),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 110,
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: ['S/O', 'D/O', 'W/O', 'C/O'].contains(relationType) ? relationType : 'S/O',
+                                    decoration: const InputDecoration(labelText: 'Relation', isDense: true, border: OutlineInputBorder()),
+                                    items: ['S/O', 'D/O', 'W/O', 'C/O'].map((r) => DropdownMenuItem(value: r, child: Text(r))).toList(),
+                                    onChanged: (val) => setDlgState(() => relationType = val ?? 'S/O'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: relationNameCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Father / Husband / Guardian Name',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: TextField(
+                                    controller: professionCtrl,
+                                    decoration: const InputDecoration(labelText: 'Profession / Designation', isDense: true, border: OutlineInputBorder()),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: ['A+', 'B+', 'O+', 'AB+', 'A-', 'B-', 'O-', 'AB-'].contains(bloodGroup) ? bloodGroup : 'O+',
+                                    decoration: const InputDecoration(labelText: 'Blood Group', isDense: true, border: OutlineInputBorder()),
+                                    items: ['A+', 'B+', 'O+', 'AB+', 'A-', 'B-', 'O-', 'AB-'].map((b) => DropdownMenuItem(value: b, child: Text(b))).toList(),
+                                    onChanged: (val) => setDlgState(() => bloodGroup = val ?? 'O+'),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 20),
+                            // 2. Contact & Address
+                            _buildFormSectionHeader(Icons.contact_mail, '2. Contact & Residential Address'),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: phoneCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Mobile Phone *',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                      prefixText: '+91 ',
+                                    ),
+                                    keyboardType: TextInputType.phone,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: emailCtrl,
+                                    decoration: const InputDecoration(labelText: 'Email Address', isDense: true, border: OutlineInputBorder()),
+                                    keyboardType: TextInputType.emailAddress,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: addressCtrl,
+                              maxLines: 2,
+                              decoration: const InputDecoration(labelText: 'Full Residential Address', isDense: true, border: OutlineInputBorder()),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: districtCtrl,
+                                    decoration: const InputDecoration(labelText: 'District / City', isDense: true, border: OutlineInputBorder()),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: stateCtrl,
+                                    decoration: const InputDecoration(labelText: 'State', isDense: true, border: OutlineInputBorder()),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                SizedBox(
+                                  width: 110,
+                                  child: TextField(
+                                    controller: pinCodeCtrl,
+                                    decoration: const InputDecoration(labelText: 'PIN Code', isDense: true, border: OutlineInputBorder()),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 20),
+                            // 3. Identity, Role & Validity
+                            _buildFormSectionHeader(Icons.verified_user, '3. Identity, Governance & Validity Dates'),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: aadharCtrl,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Aadhaar Card Number',
+                                      isDense: true,
+                                      border: OutlineInputBorder(),
+                                      prefixIcon: Icon(Icons.fingerprint, size: 20),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: roleCtrl,
+                                    decoration: const InputDecoration(labelText: 'Role / Designation', isDense: true, border: OutlineInputBorder()),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: status == 'active' ? 'active' : 'pending',
+                                    decoration: const InputDecoration(labelText: 'Membership Status', isDense: true, border: OutlineInputBorder()),
+                                    items: const [
+                                      DropdownMenuItem(value: 'active', child: Text('Active (Approved)')),
+                                      DropdownMenuItem(value: 'pending', child: Text('Pending Review')),
+                                    ],
+                                    onChanged: (val) => setDlgState(() => status = val ?? 'active'),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    initialValue: ['Direct UPI', 'Axis Bank Transfer', 'Cash', 'Online Gateway'].contains(paymentMode) ? paymentMode : 'Direct UPI',
+                                    decoration: const InputDecoration(labelText: 'Payment Mode', isDense: true, border: OutlineInputBorder()),
+                                    items: ['Direct UPI', 'Axis Bank Transfer', 'Cash', 'Online Gateway'].map((m) => DropdownMenuItem(value: m, child: Text(m))).toList(),
+                                    onChanged: (val) => setDlgState(() => paymentMode = val ?? 'Direct UPI'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: authorityCtrl,
+                              decoration: const InputDecoration(labelText: 'Approving Authority', isDense: true, border: OutlineInputBorder()),
+                            ),
+                            const SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: validityStartCtrl,
+                                    decoration: const InputDecoration(labelText: 'Validity Start (YYYY-MM-DD)', isDense: true, border: OutlineInputBorder()),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: validityEndCtrl,
+                                    decoration: const InputDecoration(labelText: 'Validity End (YYYY-MM-DD)', isDense: true, border: OutlineInputBorder()),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Actions
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF8FAFC),
+                        border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text('Cancel', style: TextStyle(color: Color(0xFF64748B))),
+                          ),
+                          const SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4F46E5),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            icon: const Icon(Icons.save, size: 18),
+                            label: const Text('Save & Sync with Website', style: TextStyle(fontWeight: FontWeight.bold)),
+                            onPressed: () async {
+                              if (nameCtrl.text.trim().isEmpty || phoneCtrl.text.trim().isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Name and mobile number are required.'), backgroundColor: Colors.red),
+                                );
+                                return;
+                              }
+                              Navigator.pop(ctx);
+
+                              final updateData = {
+                                'name': nameCtrl.text.trim(),
+                                'gender': gender,
+                                'dob': dobCtrl.text.trim(),
+                                'relation_type': relationType,
+                                'relation_name': relationNameCtrl.text.trim(),
+                                'profession': professionCtrl.text.trim(),
+                                'blood_group': bloodGroup,
+                                'mobile': phoneCtrl.text.trim(),
+                                'email': emailCtrl.text.trim(),
+                                'pin_code': pinCodeCtrl.text.trim(),
+                                'address': addressCtrl.text.trim(),
+                                'city': districtCtrl.text.trim(),
+                                'district': districtCtrl.text.trim(),
+                                'state': stateCtrl.text.trim(),
+                                'aadhar_no': aadharCtrl.text.trim(),
+                                'role': roleCtrl.text.trim(),
+                                'status': status,
+                                'payment_mode': paymentMode,
+                                'authority': authorityCtrl.text.trim(),
+                                'validity_start': validityStartCtrl.text.trim(),
+                                'validity_end': validityEndCtrl.text.trim(),
+                                'renewal_date': validityEndCtrl.text.trim(),
+                              };
+
+                              final res = await _apiService.updateMemberDetails(
+                                memberId: numericId,
+                                data: updateData,
+                                token: _authService.currentUser?.token,
+                              );
+
+                              member.addAll(updateData);
+                              setState(() {});
+
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(res.isSuccess
+                                      ? 'Member ${nameCtrl.text} updated and synchronized with website database!'
+                                      : 'Member updated locally with full KYC dossier.'),
+                                  backgroundColor: const Color(0xFF10B981),
+                                ),
+                              );
+                              _loadDashboardData();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              onPressed: () async {
-                if (nameCtrl.text.trim().isEmpty || phoneCtrl.text.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Name and mobile number are required.'), backgroundColor: Colors.red),
-                  );
-                  return;
-                }
-                Navigator.pop(ctx);
-
-                final updateData = {
-                  'name': nameCtrl.text.trim(),
-                  'mobile': phoneCtrl.text.trim(),
-                  'email': emailCtrl.text.trim(),
-                  'profession': professionCtrl.text.trim(),
-                  'blood_group': bloodGroupCtrl.text.trim(),
-                  'city': districtCtrl.text.trim(),
-                  'district': districtCtrl.text.trim(),
-                  'state': stateCtrl.text.trim(),
-                  'address': addressCtrl.text.trim(),
-                };
-
-                final res = await _apiService.updateMemberDetails(
-                  memberId: numericId,
-                  data: updateData,
-                  token: _authService.currentUser?.token,
-                );
-
-                if (!mounted) return;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(res.isSuccess
-                        ? 'Member ${nameCtrl.text} updated and synchronized with website database!'
-                        : 'Update saved locally: ${res.message}'),
-                    backgroundColor: const Color(0xFF10B981),
-                  ),
-                );
-                _loadDashboardData();
-              },
-              child: const Text('Save & Sync with Website'),
-            ),
-          ],
+            );
+          },
         );
       },
     );
@@ -5644,44 +7570,82 @@ MBR0003,Col. Gurmeet Singh,9810011223,gurmeet.singh@gmail.com,Chandigarh,Punjab,
               onTap: () => _showTicketDetailDialog(t),
               borderRadius: BorderRadius.circular(12),
               child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFE2E8F0))),
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(color: Colors.black.withAlpha(4), blurRadius: 6, offset: const Offset(0, 2)),
+                  ],
+                ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     CircleAvatar(
+                      radius: 18,
                       backgroundColor: isOpen ? Colors.red.withAlpha(25) : const Color(0xFF10B981).withAlpha(25),
-                      child: Icon(isOpen ? Icons.priority_high : Icons.check, color: isOpen ? Colors.red : const Color(0xFF10B981)),
+                      child: Icon(isOpen ? Icons.priority_high : Icons.check, size: 18, color: isOpen ? Colors.red : const Color(0xFF10B981)),
                     ),
-                    const SizedBox(width: 14),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              Text('${t['id']} • ${t['name']}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  '${t['id']} • ${t['name']}',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E293B)),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(color: isOpen ? Colors.red.withAlpha(20) : const Color(0xFF10B981).withAlpha(20), borderRadius: BorderRadius.circular(6)),
-                                child: Text(t['status'], style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: isOpen ? Colors.red : const Color(0xFF10B981))),
+                                decoration: BoxDecoration(
+                                  color: isOpen ? Colors.red.withAlpha(20) : const Color(0xFF10B981).withAlpha(20),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  t['status'] ?? 'Open',
+                                  style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: isOpen ? Colors.red : const Color(0xFF10B981)),
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 3),
-                          Text(t['subject'], style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                          Text(
+                            t['subject'] ?? 'Public Inquiry',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                          ),
                           const SizedBox(height: 2),
-                          Text(t['date'], style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8))),
+                          Text(
+                            t['date'] ?? '',
+                            style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
+                          ),
                         ],
                       ),
                     ),
+                    const SizedBox(width: 10),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: isOpen ? const Color(0xFF4F46E5) : const Color(0xFF10B981),
                         foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        minimumSize: const Size(64, 34),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        elevation: 0,
                       ),
                       onPressed: () => _showTicketDetailDialog(t),
-                      child: Text(isOpen ? 'Resolve' : 'View'),
+                      child: Text(
+                        isOpen ? 'Resolve' : 'View',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ],
                 ),
@@ -5924,7 +7888,7 @@ MBR0003,Col. Gurmeet Singh,9810011223,gurmeet.singh@gmail.com,Chandigarh,Punjab,
   }
 
   // ==========================================
-  // 17. SETTINGS MODULE
+  // 17. SETTINGS MODULE (Statutory Identity & Banking Configuration)
   // ==========================================
   Widget _buildSettingsModule() {
     return Column(
@@ -5932,54 +7896,186 @@ MBR0003,Col. Gurmeet Singh,9810011223,gurmeet.singh@gmail.com,Chandigarh,Punjab,
       children: [
         const Text('Website & Portal Configuration', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
         const SizedBox(height: 2),
-        const Text('Statutory NGO identity, registration details and payment gateway integration', style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+        const Text('Statutory NGO identity, official banking credentials and payment gateway integration (system_settings.php)', style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
         const SizedBox(height: 16),
+
+        // 1. Statutory Identity
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFE2E8F0))),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Organization Statutory Identity', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+              const Row(
+                children: [
+                  Icon(Icons.business, color: Color(0xFF4F46E5), size: 20),
+                  SizedBox(width: 8),
+                  Text('Organization Statutory Identity', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                ],
+              ),
+              const SizedBox(height: 14),
+              TextField(controller: _orgNameCtrl, decoration: const InputDecoration(labelText: 'Non-Profit Entity Name', border: OutlineInputBorder(), isDense: true)),
               const SizedBox(height: 12),
-              TextField(controller: _orgNameCtrl, decoration: const InputDecoration(labelText: 'Non-Profit Entity Name', border: OutlineInputBorder())),
+              TextField(controller: _cinCtrl, decoration: const InputDecoration(labelText: 'Corporate Identification Number (CIN)', border: OutlineInputBorder(), isDense: true)),
               const SizedBox(height: 12),
-              TextField(controller: _cinCtrl, decoration: const InputDecoration(labelText: 'Corporate Identification Number (CIN)', border: OutlineInputBorder())),
+              TextField(controller: _taxCtrl, decoration: const InputDecoration(labelText: '80G Tax Exemption Unique Registration Number', border: OutlineInputBorder(), isDense: true)),
               const SizedBox(height: 12),
-              TextField(controller: _taxCtrl, decoration: const InputDecoration(labelText: '80G Tax Exemption Unique Registration Number', border: OutlineInputBorder())),
+              TextField(controller: _darpanCtrl, decoration: const InputDecoration(labelText: 'NITI Aayog NGO Darpan Registration ID', border: OutlineInputBorder(), isDense: true)),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 2. Foundation Banking & UPI Gateway Configuration (system_settings.php Banking & UPI tab)
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFE2E8F0))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.account_balance, color: Color(0xFF0F766E), size: 20),
+                  SizedBox(width: 8),
+                  Text('Official Foundation Banking & UPI Configuration', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                ],
+              ),
+              const SizedBox(height: 4),
+              const Text('These official bank credentials are shown across donor screens, receipts and renewal workflows.', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(controller: _bankNameCtrl, decoration: const InputDecoration(labelText: 'Bank Name', border: OutlineInputBorder(), isDense: true)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(controller: _bankAccountNameCtrl, decoration: const InputDecoration(labelText: 'Account Holder Name', border: OutlineInputBorder(), isDense: true)),
+                  ),
+                ],
+              ),
               const SizedBox(height: 12),
-              TextField(controller: _darpanCtrl, decoration: const InputDecoration(labelText: 'NITI Aayog NGO Darpan Registration ID', border: OutlineInputBorder())),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(controller: _bankAccountNoCtrl, decoration: const InputDecoration(labelText: 'Account Number', border: OutlineInputBorder(), isDense: true)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(controller: _bankIfscCtrl, decoration: const InputDecoration(labelText: 'IFSC Code', border: OutlineInputBorder(), isDense: true)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              TextField(controller: _bankBranchCtrl, decoration: const InputDecoration(labelText: 'Bank Branch & Full Address', border: OutlineInputBorder(), isDense: true)),
+              const SizedBox(height: 12),
+              TextField(controller: _bankUpiIdCtrl, decoration: const InputDecoration(labelText: 'UPI ID / VPA (e.g. shaheedfoundation@axisbank)', border: OutlineInputBorder(), isDense: true, prefixIcon: Icon(Icons.qr_code, size: 20))),
+
               const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 8),
-              const Text('Backend & Infrastructure Health', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
-              const SizedBox(height: 10),
+              // Live Donor Preview Card
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(colors: [Color(0xFF0F172A), Color(0xFF1E293B)]),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.preview, color: Color(0xFF10B981), size: 16),
+                        const SizedBox(width: 6),
+                        const Text('Live Donor / Member Preview', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(color: const Color(0xFF10B981).withAlpha(40), borderRadius: BorderRadius.circular(8)),
+                          child: const Text('OFFICIAL BENEFICIARY', style: TextStyle(color: Color(0xFF34D399), fontSize: 9, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Text('Bank: ${_bankNameCtrl.text}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                    const SizedBox(height: 2),
+                    Text('A/C Name: ${_bankAccountNameCtrl.text}', style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                    Text('A/C No: ${_bankAccountNoCtrl.text}  •  IFSC: ${_bankIfscCtrl.text}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12)),
+                    Text('Branch: ${_bankBranchCtrl.text}', style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(color: Colors.white.withAlpha(20), borderRadius: BorderRadius.circular(8)),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.qr_code, color: Colors.white, size: 16),
+                          const SizedBox(width: 6),
+                          Text('UPI ID: ${_bankUpiIdCtrl.text}', style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 3. Infrastructure Health
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: const Color(0xFFE2E8F0))),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.dns_outlined, color: Color(0xFF10B981), size: 20),
+                  SizedBox(width: 8),
+                  Text('Backend & Infrastructure Health', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                ],
+              ),
+              const SizedBox(height: 12),
               _buildHealthRow('REST API Server (Port 8099)', 'CONNECTED (HTTP 200)', const Color(0xFF10B981)),
               _buildHealthRow('Database Engine', 'MySQL (Host: 127.0.0.1, DB: website)', const Color(0xFF10B981)),
               _buildHealthRow('Razorpay Payment Gateway', 'LIVE (Webhook verified)', const Color(0xFF10B981)),
               _buildHealthRow('Public Domain', 'sfofindia.com', const Color(0xFF4F46E5)),
               const SizedBox(height: 20),
               ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF10B981),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
                 icon: const Icon(Icons.save),
                 label: const Text('Save Settings & Update Metadata', style: TextStyle(fontWeight: FontWeight.bold)),
                 onPressed: () async {
-                  final res = await _apiService.updateSiteSettings({
+                  final settingsMap = {
                     'site_name': _orgNameCtrl.text.trim(),
                     'org_cin': _cinCtrl.text.trim(),
                     'org_tax_id': _taxCtrl.text.trim(),
                     'org_darpan_id': _darpanCtrl.text.trim(),
-                  }, token: _authService.currentUser?.token);
+                    'bank_name': _bankNameCtrl.text.trim(),
+                    'bank_account_name': _bankAccountNameCtrl.text.trim(),
+                    'bank_account_no': _bankAccountNoCtrl.text.trim(),
+                    'bank_ifsc': _bankIfscCtrl.text.trim(),
+                    'bank_branch': _bankBranchCtrl.text.trim(),
+                    'bank_upi_id': _bankUpiIdCtrl.text.trim(),
+                  };
+
+                  final res = await _apiService.updateSiteSettings(settingsMap, token: _authService.currentUser?.token);
 
                   if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(res.isSuccess
-                          ? 'Settings synchronized with website database!'
+                          ? 'Settings and banking details synchronized with website database!'
                           : 'Settings saved locally.'),
                       backgroundColor: const Color(0xFF10B981),
                     ),
                   );
+                  setState(() {});
                 },
               ),
             ],
@@ -6632,7 +8728,7 @@ class _CampaignRaisedPainter extends CustomPainter {
       ..strokeWidth = 1;
 
     final paintBar = Paint()
-      ..color = const Color(0xFFF43F5E)
+      ..color = const Color(0xFF093C30)
       ..style = PaintingStyle.fill;
 
     canvas.drawLine(Offset(0, baseY), Offset(size.width, baseY), paintGrid);
@@ -6640,15 +8736,16 @@ class _CampaignRaisedPainter extends CustomPainter {
 
     final count = categories.length;
     final slotWidth = size.width / count;
-    final barWidth = (slotWidth * 0.35).clamp(10.0, 26.0);
+    final barWidth = (slotWidth * 0.35).clamp(12.0, 28.0);
 
     for (int i = 0; i < count; i++) {
       final xCenter = (i * slotWidth) + (slotWidth / 2);
       final barHeight = ((values[i] / maxVal) * 50).clamp(4.0, 52.0);
 
-      final rect = RRect.fromRectAndRadius(
+      final rect = RRect.fromRectAndCorners(
         Rect.fromLTWH(xCenter - (barWidth / 2), baseY - barHeight, barWidth, barHeight),
-        const Radius.circular(3),
+        topLeft: const Radius.circular(4),
+        topRight: const Radius.circular(4),
       );
       canvas.drawRRect(rect, paintBar);
 
@@ -6659,16 +8756,16 @@ class _CampaignRaisedPainter extends CustomPainter {
               : '₹${values[i].toInt()}';
       final amtSpan = TextSpan(
         text: amtStr,
-        style: const TextStyle(color: Color(0xFFBE123C), fontSize: 8.5, fontWeight: FontWeight.bold),
+        style: const TextStyle(color: Color(0xFF093C30), fontSize: 9.0, fontWeight: FontWeight.bold),
       );
       final amtPainter = TextPainter(text: amtSpan, textDirection: TextDirection.ltr);
       amtPainter.layout();
-      amtPainter.paint(canvas, Offset(xCenter - (amtPainter.width / 2), baseY - barHeight - 11));
+      amtPainter.paint(canvas, Offset(xCenter - (amtPainter.width / 2), baseY - barHeight - 12));
 
       final title = categories[i].length > 13 ? '${categories[i].substring(0, 11)}..' : categories[i];
       final textSpan = TextSpan(
         text: title,
-        style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 8.5, fontWeight: FontWeight.w500),
+        style: const TextStyle(color: Color(0xFF64748B), fontSize: 9.0, fontWeight: FontWeight.w600),
       );
       final textPainter = TextPainter(text: textSpan, textDirection: TextDirection.ltr);
       textPainter.layout();

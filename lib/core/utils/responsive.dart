@@ -49,19 +49,19 @@ class Responsive {
   /// Calculates dynamic childAspectRatio for metric/stat cards in 2-column grids
   /// to strictly prevent RenderFlex bottom overflow on ultra-compact devices.
   static double metricCardAspectRatio(double availableWidth) {
-    if (availableWidth < 340) return 0.78;
-    if (availableWidth < 380) return 0.88;
-    if (availableWidth < 500) return 1.05;
-    if (availableWidth < 700) return 1.18;
+    if (availableWidth < 340) return 0.74;
+    if (availableWidth < 380) return 0.82;
+    if (availableWidth < 500) return 0.94;
+    if (availableWidth < 700) return 1.15;
     return 1.35;
   }
 
   /// Calculates dynamic childAspectRatio for document quick action cards
   static double docCardAspectRatio(double availableWidth) {
-    if (availableWidth < 340) return 0.80;
-    if (availableWidth < 380) return 0.90;
-    if (availableWidth < 500) return 1.05;
-    if (availableWidth < 700) return 1.18;
+    if (availableWidth < 340) return 0.76;
+    if (availableWidth < 380) return 0.84;
+    if (availableWidth < 500) return 0.96;
+    if (availableWidth < 700) return 1.15;
     return 1.32;
   }
 

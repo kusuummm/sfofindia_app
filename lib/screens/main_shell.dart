@@ -15,6 +15,10 @@ import 'documents/documents_screen.dart';
 import 'impact/impact_stories_screen.dart';
 import 'team/our_team_screen.dart';
 import 'auth/login_screen.dart';
+import 'blog/blog_screen.dart';
+import 'legal/legal_compliance_screen.dart';
+import 'memorial/memorial_tributes_screen.dart';
+import 'admin/admin_dashboard_screen.dart';
 
 class MemberTabWrapper extends StatelessWidget {
   final Function(int)? onNavigateTab;
@@ -26,7 +30,10 @@ class MemberTabWrapper extends StatelessWidget {
       listenable: AuthService(),
       builder: (context, _) {
         final auth = AuthService();
-        if (auth.isAuthenticated && auth.isMember) {
+        if (auth.isAuthenticated) {
+          if (auth.isAdmin) {
+            return const AdminDashboardScreen();
+          }
           return const MemberPortalScreen();
         }
         return MemberVerifyScreen(onNavigateTab: onNavigateTab);
@@ -112,59 +119,75 @@ class _MainShellState extends State<MainShell> {
                 ),
               ],
             ),
-            child: BottomNavigationBar(
-              currentIndex: _currentIndex,
-              onTap: _onSelectTab,
-              type: BottomNavigationBarType.fixed,
-              backgroundColor: Colors.white,
-              selectedItemColor: AppTheme.secondaryNavy,
-              unselectedItemColor: AppTheme.textMuted,
-              selectedFontSize: 12,
-              unselectedFontSize: 11,
-              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
-              elevation: 0,
-              items: [
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.home_outlined),
-                  activeIcon: Icon(Icons.home_rounded),
-                  label: 'Home',
-                ),
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.handshake_outlined),
-                  activeIcon: Icon(Icons.handshake_rounded),
-                  label: 'Services',
-                ),
-                BottomNavigationBarItem(
-                  icon: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryGold,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppTheme.primaryGold.withAlpha(80),
-                          blurRadius: 6,
+            child: ListenableBuilder(
+              listenable: AuthService(),
+              builder: (context, _) {
+                final auth = AuthService();
+                final bool isAdmin = auth.isAdmin;
+                final bool isMember = auth.isMember;
+                final String fourthLabel = isAdmin ? 'Admin' : (isMember ? 'Portal' : 'Members');
+                final IconData fourthIcon = isAdmin
+                    ? Icons.admin_panel_settings_outlined
+                    : (isMember ? Icons.account_circle_outlined : Icons.badge_outlined);
+                final IconData fourthActiveIcon = isAdmin
+                    ? Icons.admin_panel_settings_rounded
+                    : (isMember ? Icons.account_circle_rounded : Icons.badge_rounded);
+
+                return BottomNavigationBar(
+                  currentIndex: _currentIndex,
+                  onTap: _onSelectTab,
+                  type: BottomNavigationBarType.fixed,
+                  backgroundColor: Colors.white,
+                  selectedItemColor: AppTheme.secondaryNavy,
+                  unselectedItemColor: AppTheme.textMuted,
+                  selectedFontSize: 12,
+                  unselectedFontSize: 11,
+                  selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  elevation: 0,
+                  items: [
+                    const BottomNavigationBarItem(
+                      icon: Icon(Icons.home_outlined),
+                      activeIcon: Icon(Icons.home_rounded),
+                      label: 'Home',
+                    ),
+                    const BottomNavigationBarItem(
+                      icon: Icon(Icons.handshake_outlined),
+                      activeIcon: Icon(Icons.handshake_rounded),
+                      label: 'Services',
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppTheme.primaryGold,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppTheme.primaryGold.withAlpha(80),
+                              blurRadius: 6,
+                            ),
+                          ],
                         ),
-                      ],
+                        child: const Icon(Icons.favorite_rounded, color: AppTheme.secondaryNavy, size: 20),
+                      ),
+                      activeIcon: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: const BoxDecoration(
+                          color: AppTheme.secondaryNavy,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.favorite_rounded, color: AppTheme.primaryGold, size: 20),
+                      ),
+                      label: 'Donate',
                     ),
-                    child: const Icon(Icons.favorite_rounded, color: AppTheme.secondaryNavy, size: 20),
-                  ),
-                  activeIcon: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: const BoxDecoration(
-                      color: AppTheme.secondaryNavy,
-                      shape: BoxShape.circle,
+                    BottomNavigationBarItem(
+                      icon: Icon(fourthIcon),
+                      activeIcon: Icon(fourthActiveIcon),
+                      label: fourthLabel,
                     ),
-                    child: const Icon(Icons.favorite_rounded, color: AppTheme.primaryGold, size: 20),
-                  ),
-                  label: 'Donate',
-                ),
-                const BottomNavigationBarItem(
-                  icon: Icon(Icons.badge_outlined),
-                  activeIcon: Icon(Icons.badge_rounded),
-                  label: 'Members',
-                ),
-              ],
+                  ],
+                );
+              },
             ),
           ),
         );
@@ -302,9 +325,24 @@ class _MainShellState extends State<MainShell> {
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ImpactStoriesScreen())),
                 ),
                 _desktopQuickAction(
+                  title: 'News & Press Releases',
+                  icon: Icons.newspaper_rounded,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const BlogScreen())),
+                ),
+                _desktopQuickAction(
+                  title: 'Amar Jyoti Tributes',
+                  icon: Icons.flare_rounded,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MemorialTributesScreen())),
+                ),
+                _desktopQuickAction(
                   title: 'Official Documents',
                   icon: Icons.description_rounded,
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DocumentsScreen())),
+                ),
+                _desktopQuickAction(
+                  title: 'Legal & Privacy Policy',
+                  icon: Icons.policy_rounded,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LegalComplianceScreen())),
                 ),
                 _desktopQuickAction(
                   title: 'Gallery & Media',
@@ -338,29 +376,46 @@ class _MainShellState extends State<MainShell> {
                 child: auth.isAuthenticated
                     ? Row(
                         children: [
-                          CircleAvatar(
-                            radius: 18,
-                            backgroundColor: AppTheme.primaryGold,
-                            child: Text(
-                              (auth.currentUser?.name ?? 'U').substring(0, 1).toUpperCase(),
-                              style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.secondaryNavy),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  auth.currentUser?.name ?? 'User',
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  auth.isAdmin ? 'Admin' : 'Active Member',
-                                  style: const TextStyle(color: AppTheme.primaryGold, fontSize: 11),
-                                ),
-                              ],
+                            child: InkWell(
+                              onTap: () {
+                                if (auth.isAdmin) {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminDashboardScreen()));
+                                } else {
+                                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MemberPortalScreen()));
+                                }
+                              },
+                              borderRadius: BorderRadius.circular(8),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 18,
+                                    backgroundColor: AppTheme.primaryGold,
+                                    child: Text(
+                                      (auth.currentUser?.name ?? 'U').substring(0, 1).toUpperCase(),
+                                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.secondaryNavy),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          auth.currentUser?.name ?? 'User',
+                                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Text(
+                                          auth.isAdmin ? 'Admin' : 'Active Member',
+                                          style: const TextStyle(color: AppTheme.primaryGold, fontSize: 11),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_forward_ios, color: Colors.white38, size: 12),
+                                ],
+                              ),
                             ),
                           ),
                           IconButton(

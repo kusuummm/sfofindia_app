@@ -33,8 +33,9 @@ void main() {
     expect(find.text('Rajiv Sharma'), findsNothing);
     expect(find.text('Kusum Rathore'), findsNothing);
 
-    // 4. When clicking a sample chip or searching an ID, member card appears
-    await tester.tap(find.text('SFOF-2024-0012'));
+    // 4. When searching a member ID, member card appears
+    await tester.enterText(find.byType(TextField).first, 'SFOF-2024-0012');
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Verify'));
     await tester.pumpAndSettle();
 
     expect(find.text('OFFICIALLY VERIFIED'), findsOneWidget);

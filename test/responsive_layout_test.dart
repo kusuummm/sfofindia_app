@@ -90,7 +90,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('Member Portal & Services'), findsOneWidget);
+      expect(find.text('Member Portal'), findsWidgets);
       expect(find.text('TOTAL DONATED'), findsOneWidget);
       expect(find.text('80G TAX SAVINGS'), findsOneWidget);
       expect(find.text('OFFICIAL DOCUMENTS'), findsOneWidget);

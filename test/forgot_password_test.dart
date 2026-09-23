@@ -34,8 +34,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Please enter your registered email address.'), findsOneWidget);
 
-    // 1.2 Enter valid admin email using quick fill chip
-    await tester.tap(find.text('Admin Email (admin@example.com)'));
+    // 1.2 Enter valid email
+    await tester.enterText(find.byType(TextField).first, 'admin@example.com');
     await tester.pumpAndSettle();
 
     // 1.3 Submit to send OTP
@@ -53,7 +53,9 @@ void main() {
     expect(find.text('Please enter the complete 6-digit OTP code.'), findsOneWidget);
 
     // 2.2 Enter 6-digit OTP
-    await tester.enterText(find.byKey(const Key('forgot_otp_input')), '123456');
+    for (int i = 0; i < 6; i++) {
+      await tester.enterText(find.byKey(Key('forgot_otp_digit_$i')), '${i + 1}');
+    }
     await tester.pumpAndSettle();
 
     // 2.3 Submit OTP

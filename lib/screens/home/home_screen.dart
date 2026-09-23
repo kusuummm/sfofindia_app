@@ -11,16 +11,19 @@ import '../documents/documents_screen.dart';
 import '../gallery/gallery_screen.dart';
 import '../member/member_apply_screen.dart';
 import '../main_shell.dart';
-import '../../services/auth_service.dart';
 import '../../services/api_service.dart';
-import '../auth/login_screen.dart';
-import '../admin/admin_dashboard_screen.dart';
-import '../member/member_portal_screen.dart';
-import '../../core/utils/url_helper.dart';
 import '../impact/impact_stories_screen.dart';
 import '../../core/utils/responsive.dart';
 import '../team/our_team_screen.dart';
 import '../services/service_detail_screen.dart';
+import '../blog/blog_screen.dart';
+import '../memorial/memorial_tributes_screen.dart';
+import '../services/blood_donor_screen.dart';
+import '../legal/legal_compliance_screen.dart';
+import '../../services/auth_service.dart';
+import '../admin/admin_dashboard_screen.dart';
+import '../member/member_portal_screen.dart';
+import '../auth/login_screen.dart';
 
 
 
@@ -432,13 +435,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(width: 8),
 
-                      // Auth / Portal Button
+                      // User Status / Quick Login or Dashboard Chip on Topbar
                       ListenableBuilder(
                         listenable: AuthService(),
                         builder: (context, _) {
                           final auth = AuthService();
                           if (auth.isAuthenticated) {
                             final isAdmin = auth.isAdmin;
+                            final user = auth.currentUser;
                             return InkWell(
                               onTap: () {
                                 if (isAdmin) {
@@ -453,32 +457,32 @@ class _HomeScreenState extends State<HomeScreen> {
                                   );
                                 }
                               },
+                              borderRadius: BorderRadius.circular(20),
                               child: Container(
                                 padding: EdgeInsets.symmetric(
-                                  horizontal: isCompact ? 6 : 8,
-                                  vertical: 5,
+                                  horizontal: isCompact ? 7 : 10,
+                                  vertical: 4,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: isAdmin ? AppTheme.flameRed : AppTheme.primaryGold,
-                                  borderRadius: BorderRadius.circular(6),
+                                  color: Colors.white.withAlpha(25),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: AppTheme.primaryGold.withAlpha(120)),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
-                                      isAdmin ? Icons.admin_panel_settings : Icons.badge,
-                                      size: 13,
-                                      color: isAdmin ? Colors.white : AppTheme.textDark,
+                                      isAdmin ? Icons.admin_panel_settings : Icons.account_circle,
+                                      color: AppTheme.primaryGold,
+                                      size: isCompact ? 16 : 18,
                                     ),
-                                    const SizedBox(width: 3),
+                                    const SizedBox(width: 4),
                                     Text(
-                                      isAdmin
-                                          ? (isCompact ? 'CMS' : 'Admin CMS')
-                                          : (isCompact ? 'Portal' : 'My Portal'),
+                                      isAdmin ? 'Admin' : (user?.name.split(' ').first ?? 'Member'),
                                       style: TextStyle(
-                                        fontSize: 10.5,
+                                        color: Colors.white,
+                                        fontSize: isCompact ? 10.5 : 12,
                                         fontWeight: FontWeight.bold,
-                                        color: isAdmin ? Colors.white : AppTheme.textDark,
                                       ),
                                     ),
                                   ],
@@ -493,26 +497,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                 MaterialPageRoute(builder: (_) => const LoginScreen()),
                               );
                             },
+                            borderRadius: BorderRadius.circular(20),
                             child: Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: isCompact ? 6 : 9,
-                                vertical: 5,
+                                horizontal: isCompact ? 7 : 10,
+                                vertical: 4,
                               ),
                               decoration: BoxDecoration(
                                 color: AppTheme.primaryGold,
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(20),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
-                                children: const [
-                                  Icon(Icons.login, size: 12, color: AppTheme.textDark),
-                                  SizedBox(width: 3),
+                                children: [
+                                  Icon(
+                                    Icons.login_rounded,
+                                    color: AppTheme.secondaryNavy,
+                                    size: isCompact ? 14 : 16,
+                                  ),
+                                  const SizedBox(width: 3),
                                   Text(
                                     'Login',
                                     style: TextStyle(
-                                      fontSize: 10.5,
+                                      color: AppTheme.secondaryNavy,
+                                      fontSize: isCompact ? 10.5 : 12,
                                       fontWeight: FontWeight.bold,
-                                      color: AppTheme.textDark,
                                     ),
                                   ),
                                 ],
@@ -521,107 +530,52 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         },
                       ),
-
-                      // Contact / Call button (shown when not ultra-compact)
-                      if (!isVeryCompact) ...[
-                        const SizedBox(width: 5),
-                        InkWell(
-                          onTap: () => UrlHelper.launchPhoneCall(context, AppConstants.phone),
-                          borderRadius: BorderRadius.circular(6),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isCompact ? 6 : 8,
-                              vertical: 5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withAlpha(25),
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: Colors.white24),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.phone, size: 12, color: Colors.white),
-                                if (!isCompact) ...[
-                                  const SizedBox(width: 3),
-                                  const Text(
-                                    'Call',
-                                    style: TextStyle(
-                                      fontSize: 10.5,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
                       ],
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-
-        // Navbar: Gold #C89B3C with quick horizontal navigation chips
-        Container(
-          color: AppTheme.primaryGold,
-          height: 48,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            children: [
-              _navChip('Home', isActive: true, onTap: () {}),
-              _navChip('About', onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen()));
-              }),
-              _navChip('Our Team', onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const OurTeamScreen()));
-              }),
-              _navChip('Services', onTap: () => widget.onNavigateTab(1)),
-              _navChip('Donation', onTap: () => widget.onNavigateTab(2)),
-              _navChip('Our Documents', onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const DocumentsScreen()));
-              }),
-              _navChip('Gallery & Events', onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const GalleryScreen()));
-              }),
-              _navChip('Join Us', isButton: true, onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const MemberApplyScreen()));
-              }),
-              _navChip(
-                AuthService().isAuthenticated
-                    ? (AuthService().isAdmin ? 'Admin Dashboard' : 'Member Portal')
-                    : 'Portal Login',
-                isButton: true,
-                onTap: () {
-                  if (AuthService().isAdmin) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
-                    );
-                  } else if (AuthService().isMember) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const MemberPortalScreen()),
-                    );
-                  } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    );
-                  }
+                    ),
+                  );
                 },
               ),
-              _navChip('Contact', onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactScreen()));
-              }),
-            ],
+            ),
           ),
-        ),
+
+          // Navbar: Gold #C89B3C with non-duplicate horizontal navigation chips
+          Container(
+            color: AppTheme.primaryGold,
+            height: 48,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              children: [
+                _navChip('About', onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen()));
+                }),
+                _navChip('Our Team', onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const OurTeamScreen()));
+                }),
+                _navChip('News & Bulletins', onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const BlogScreen()));
+                }),
+                _navChip('Amar Jyoti', onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MemorialTributesScreen()));
+                }),
+                _navChip('Blood Network', onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const BloodDonorScreen()));
+                }),
+                _navChip('Our Documents', onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const DocumentsScreen()));
+                }),
+                _navChip('Gallery & Events', onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const GalleryScreen()));
+                }),
+                _navChip('Join Us', isButton: true, onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MemberApplyScreen()));
+                }),
+                _navChip('Contact', onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactScreen()));
+                }),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -672,8 +626,8 @@ class _HomeScreenState extends State<HomeScreen> {
         child: LayoutBuilder(
           builder: (context, heroConstraints) {
             final isCompact = heroConstraints.maxWidth < 400;
-            final imageHeight = isCompact ? 130.0 : (heroConstraints.maxWidth < 600 ? 150.0 : 180.0);
-            final carouselHeight = isCompact ? 285.0 : (heroConstraints.maxWidth < 600 ? 305.0 : 330.0);
+            final imageHeight = isCompact ? 115.0 : (heroConstraints.maxWidth < 600 ? 135.0 : 160.0);
+            final carouselHeight = isCompact ? 305.0 : (heroConstraints.maxWidth < 600 ? 330.0 : 360.0);
 
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -1696,9 +1650,14 @@ class _HomeScreenState extends State<HomeScreen> {
               _footerLink(context, 'About Us', () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutScreen()));
               }),
-              _footerLink(context, 'Our Services', () => widget.onNavigateTab(1)),
+              _footerLink(context, 'Privacy & 80G Policy', () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const LegalComplianceScreen()));
+              }),
               _footerLink(context, 'Our Documents', () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const DocumentsScreen()));
+              }),
+              _footerLink(context, 'News & Bulletins', () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const BlogScreen()));
               }),
               _footerLink(context, 'Gallery', () {
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const GalleryScreen()));
@@ -1820,30 +1779,39 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _dockCard(
                 context,
-                title: 'Services',
-                subtitle: 'Support & Welfare',
-                icon: Icons.handshake_rounded,
-                color: AppTheme.secondaryNavy,
-                iconBg: AppTheme.secondaryNavy.withAlpha(15),
-                onTap: () => widget.onNavigateTab(1),
+                title: 'Blood Network',
+                subtitle: 'Emergency Donors',
+                icon: Icons.bloodtype_rounded,
+                color: AppTheme.flameRed,
+                iconBg: AppTheme.flameRed.withAlpha(20),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BloodDonorScreen()),
+                ),
               ),
               _dockCard(
                 context,
-                title: 'Donate',
-                subtitle: '80G Tax Benefit',
-                icon: Icons.favorite_rounded,
+                title: 'Amar Jyoti',
+                subtitle: 'Diya & Tributes',
+                icon: Icons.local_fire_department_rounded,
                 color: AppTheme.primaryGoldDark,
                 iconBg: AppTheme.primaryGold.withAlpha(25),
-                onTap: () => widget.onNavigateTab(2),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MemorialTributesScreen()),
+                ),
               ),
               _dockCard(
                 context,
-                title: 'Members',
-                subtitle: 'Portal & Verify',
-                icon: Icons.badge_rounded,
-                color: AppTheme.secondaryNavy,
-                iconBg: AppTheme.secondaryNavy.withAlpha(15),
-                onTap: () => widget.onNavigateTab(3),
+                title: 'Latest News',
+                subtitle: 'Press & Bulletins',
+                icon: Icons.newspaper_rounded,
+                color: const Color(0xFF4F46E5),
+                iconBg: const Color(0xFF4F46E5).withAlpha(20),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BlogScreen()),
+                ),
               ),
               _dockCard(
                 context,

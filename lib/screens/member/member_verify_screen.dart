@@ -32,10 +32,16 @@ class MemberVerifyScreen extends StatefulWidget {
 
 class _MemberVerifyScreenState extends State<MemberVerifyScreen> {
   final _searchCtrl = TextEditingController();
+  final _receiptCtrl = TextEditingController();
   final repo = AppRepository();
   MemberModel? _searchedMember;
   bool _searched = false;
   bool _isSearching = false;
+
+  String _verifyMode = 'member'; // 'member' or 'receipt'
+  Map<String, dynamic>? _verifiedReceipt;
+  bool _isSearchingReceipt = false;
+  bool _receiptSearched = false;
 
   @override
   void initState() {
@@ -54,6 +60,7 @@ class _MemberVerifyScreenState extends State<MemberVerifyScreen> {
   @override
   void dispose() {
     _searchCtrl.dispose();
+    _receiptCtrl.dispose();
     super.dispose();
   }
 
@@ -99,6 +106,30 @@ class _MemberVerifyScreenState extends State<MemberVerifyScreen> {
 
     if (mounted) {
       setState(() => _isSearching = false);
+    }
+  }
+
+  Future<void> _doReceiptSearch(String query) async {
+    final clean = query.trim();
+    if (clean.isEmpty) return;
+
+    setState(() {
+      _receiptSearched = true;
+      _isSearchingReceipt = true;
+      _verifiedReceipt = null;
+    });
+
+    try {
+      final res = await ApiService().verifyDonationReceipt(clean);
+      if (mounted && res.isSuccess && res.data != null && res.data is Map) {
+        setState(() {
+          _verifiedReceipt = Map<String, dynamic>.from(res.data as Map);
+        });
+      }
+    } catch (_) {}
+
+    if (mounted) {
+      setState(() => _isSearchingReceipt = false);
     }
   }
 
@@ -475,119 +506,232 @@ class _MemberVerifyScreenState extends State<MemberVerifyScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Verify Authenticity of Member',
-                          style: TextStyle(
+                        // Verification Mode Selector Pills
+                        Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.all(4),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() => _verifyMode = 'member');
+                                  },
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: _verifyMode == 'member' ? Colors.white : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: _verifyMode == 'member'
+                                          ? [BoxShadow(color: Colors.black.withAlpha(12), blurRadius: 4, offset: const Offset(0, 2))]
+                                          : null,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.badge_outlined,
+                                          size: 16,
+                                          color: _verifyMode == 'member' ? const Color(0xFF4F46E5) : const Color(0xFF64748B),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          'Member ID Card',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: _verifyMode == 'member' ? FontWeight.bold : FontWeight.w500,
+                                            color: _verifyMode == 'member' ? const Color(0xFF1E293B) : const Color(0xFF64748B),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() => _verifyMode = 'receipt');
+                                  },
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: _verifyMode == 'receipt' ? Colors.white : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: _verifyMode == 'receipt'
+                                          ? [BoxShadow(color: Colors.black.withAlpha(12), blurRadius: 4, offset: const Offset(0, 2))]
+                                          : null,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.receipt_long_outlined,
+                                          size: 16,
+                                          color: _verifyMode == 'receipt' ? const Color(0xFFD97706) : const Color(0xFF64748B),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          '80G Tax Receipt',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: _verifyMode == 'receipt' ? FontWeight.bold : FontWeight.w500,
+                                            color: _verifyMode == 'receipt' ? const Color(0xFF1E293B) : const Color(0xFF64748B),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        Text(
+                          _verifyMode == 'member'
+                              ? 'Verify Authenticity of Member'
+                              : 'Verify 80G Tax Exemption Receipt',
+                          style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
                             color: AppTheme.secondaryNavy,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Enter Member ID (e.g. SFOF-2024-0012) or Registered Mobile',
-                          style: TextStyle(fontSize: 12, color: AppTheme.textMuted),
+                        Text(
+                          _verifyMode == 'member'
+                              ? 'Enter official Member ID (e.g. MBR0004) or registered mobile number'
+                              : 'Enter official 80G receipt number (e.g. 80G-2026-99120) to check tax exemption validity',
+                          style: const TextStyle(fontSize: 12, color: AppTheme.textMuted),
                         ),
                         const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _searchCtrl,
-                                decoration: InputDecoration(
-                                  hintText: 'SFOF-2024-0012 or Mobile...',
-                                  prefixIcon: const Icon(Icons.search, size: 20),
-                                  suffixIcon: _searchCtrl.text.isNotEmpty
-                                      ? IconButton(
-                                          icon: const Icon(Icons.clear, size: 18),
-                                          onPressed: () {
-                                            _searchCtrl.clear();
-                                            setState(() {
-                                              _searched = false;
-                                              _searchedMember = null;
-                                            });
-                                          },
-                                        )
-                                      : null,
-                                ),
-                                onSubmitted: _doSearch,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.primaryGold,
-                                foregroundColor: AppTheme.textDark,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 18, vertical: 14),
-                              ),
-                              onPressed: _isSearching ? null : () => _doSearch(_searchCtrl.text),
-                              child: _isSearching
-                                  ? const SizedBox(
-                                      width: 18,
-                                      height: 18,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: AppTheme.textDark,
-                                      ),
-                                    )
-                                  : const Text('Verify', style: TextStyle(fontWeight: FontWeight.bold)),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        // Quick chips
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          children: [
-                            const Text(
-                              'Sample IDs:',
-                              style: TextStyle(fontSize: 11, color: AppTheme.textMuted),
-                            ),
-                            ...repo.members.take(3).map((m) {
-                              return InkWell(
-                                onTap: () {
-                                  _searchCtrl.text = m.publicId;
-                                  _doSearch(m.publicId);
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: AppTheme.primaryGold.withAlpha(25),
-                                    borderRadius: BorderRadius.circular(6),
+
+                        if (_verifyMode == 'member') ...[
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _searchCtrl,
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter Member ID or Mobile...',
+                                    prefixIcon: const Icon(Icons.search, size: 20),
+                                    suffixIcon: _searchCtrl.text.isNotEmpty
+                                        ? IconButton(
+                                            icon: const Icon(Icons.clear, size: 18),
+                                            onPressed: () {
+                                              _searchCtrl.clear();
+                                              setState(() {
+                                                _searched = false;
+                                                _searchedMember = null;
+                                              });
+                                            },
+                                          )
+                                        : null,
                                   ),
-                                  child: Text(
-                                    m.publicId,
-                                    style: const TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppTheme.primaryGoldDark,
-                                    ),
-                                  ),
+                                  onSubmitted: _doSearch,
                                 ),
-                              );
-                            }),
-                          ],
-                        ),
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.primaryGold,
+                                  foregroundColor: AppTheme.textDark,
+                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                                ),
+                                onPressed: _isSearching ? null : () => _doSearch(_searchCtrl.text),
+                                child: _isSearching
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: AppTheme.textDark,
+                                        ),
+                                      )
+                                    : const Text('Verify', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                        ] else ...[
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: _receiptCtrl,
+                                  decoration: InputDecoration(
+                                    hintText: 'e.g. 80G-2026-99120 or SFOF...',
+                                    prefixIcon: const Icon(Icons.receipt_long, size: 20),
+                                    suffixIcon: _receiptCtrl.text.isNotEmpty
+                                        ? IconButton(
+                                            icon: const Icon(Icons.clear, size: 18),
+                                            onPressed: () {
+                                              _receiptCtrl.clear();
+                                              setState(() {
+                                                _receiptSearched = false;
+                                                _verifiedReceipt = null;
+                                              });
+                                            },
+                                          )
+                                        : null,
+                                  ),
+                                  onSubmitted: _doReceiptSearch,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFF59E0B),
+                                  foregroundColor: const Color(0xFF0F172A),
+                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                                ),
+                                onPressed: _isSearchingReceipt ? null : () => _doReceiptSearch(_receiptCtrl.text),
+                                child: _isSearchingReceipt
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Color(0xFF0F172A),
+                                        ),
+                                      )
+                                    : const Text('Verify 80G', style: TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                        ],
                       ],
                     ),
                   ),
 
                   const SizedBox(height: 24),
 
-                  if (_searched && _searchedMember == null) ...[
-                    _buildNotFoundCard(),
-                  ] else if (_searchedMember != null) ...[
-                    // Exact web verification card from web/member_verify.php
-                    _buildWebsiteVerifyCard(_searchedMember!),
-                    const SizedBox(height: 24),
-                    _buildDigitalIdCard(_searchedMember!),
-                    const SizedBox(height: 20),
-                    _buildMemberProfileDetails(_searchedMember!),
+                  if (_verifyMode == 'member') ...[
+                    if (_searched && _searchedMember == null) ...[
+                      _buildNotFoundCard(),
+                    ] else if (_searchedMember != null) ...[
+                      _buildWebsiteVerifyCard(_searchedMember!),
+                      const SizedBox(height: 24),
+                      _buildDigitalIdCard(_searchedMember!),
+                      const SizedBox(height: 20),
+                      _buildMemberProfileDetails(_searchedMember!),
+                    ] else ...[
+                      _buildEmptyStateCard(),
+                    ],
                   ] else ...[
-                    _buildEmptyStateCard(),
+                    if (_receiptSearched && _verifiedReceipt == null) ...[
+                      _buildReceiptNotFoundCard(),
+                    ] else if (_verifiedReceipt != null) ...[
+                      _buildReceiptVerifiedCard(_verifiedReceipt!),
+                    ] else ...[
+                      _buildReceiptEmptyStateCard(),
+                    ],
                   ],
 
                   const SizedBox(height: 30),
@@ -596,6 +740,179 @@ class _MemberVerifyScreenState extends State<MemberVerifyScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildReceiptEmptyStateCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.cardBorder),
+      ),
+      child: Column(
+        children: const [
+          Icon(Icons.receipt_long, size: 48, color: Color(0xFFF59E0B)),
+          SizedBox(height: 12),
+          Text(
+            '80G Tax Exemption Receipt Verification',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Color(0xFF0F172A)),
+          ),
+          SizedBox(height: 6),
+          Text(
+            'Enter your official donation receipt number above to verify genuine tax deduction authorization under Section 80G.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: Color(0xFF64748B), height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReceiptNotFoundCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFCA5A5)),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.error_outline_rounded, size: 44, color: Color(0xFFDC2626)),
+          const SizedBox(height: 10),
+          const Text(
+            '80G Receipt Record Not Found',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF991B1B)),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'No valid donation record matching "${_receiptCtrl.text.trim()}" was found in the central repository. Please ensure the receipt number is entered correctly.',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12, color: Color(0xFF7F1D1D), height: 1.4),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReceiptVerifiedCard(Map<String, dynamic> r) {
+    final donorName = r['donor_name']?.toString() ?? 'Generous Contributor';
+    final amount = r['amount']?.toString() ?? '0';
+    final receiptNo = r['receipt_no']?.toString() ?? _receiptCtrl.text.trim();
+    final date = r['created_at']?.toString() ?? 'Recent';
+    final campaign = r['campaign_title']?.toString() ?? 'Martyr Welfare & Family Relief';
+    final pan = r['pan_number']?.toString() ?? 'Provided upon request';
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFF10B981), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF10B981).withAlpha(20),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: const BoxDecoration(
+              color: Color(0xFF10B981),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+            ),
+            child: Row(
+              children: const [
+                Icon(Icons.verified_rounded, color: Colors.white, size: 22),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'OFFICIAL 80G TAX EXEMPTION RECEIPT - VERIFIED',
+                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Receipt Number', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                        Text(receiptNo, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFECFDF5),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: const Color(0xFF10B981)),
+                      ),
+                      child: const Text('STATUS: VALID', style: TextStyle(color: Color(0xFF059669), fontSize: 11, fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+                const Divider(height: 24),
+                _buildReceiptDetailRow('Donor Name', donorName),
+                _buildReceiptDetailRow('Donation Amount', '₹$amount (50% Tax Exempt)'),
+                _buildReceiptDetailRow('Purpose / Cause', campaign),
+                _buildReceiptDetailRow('Contribution Date', date),
+                _buildReceiptDetailRow('Donor PAN', pan),
+                _buildReceiptDetailRow('Section 80G Approval URN', 'AAXCS2334MF20241'),
+                _buildReceiptDetailRow('Foundation PAN', AppConstants.panNumber),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: const Text(
+                    'This receipt confirms official contribution under Section 80G(5)(vi) of the Income Tax Act, 1961. Issued by Shaheed Foundation of India.',
+                    style: TextStyle(fontSize: 11, color: Color(0xFF64748B), height: 1.4),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReceiptDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+          ),
+        ],
       ),
     );
   }

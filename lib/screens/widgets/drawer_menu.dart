@@ -13,9 +13,14 @@ import '../member/member_portal_screen.dart';
 import '../member/member_verify_screen.dart';
 import '../team/our_team_screen.dart';
 import '../impact/impact_stories_screen.dart';
+import '../blog/blog_screen.dart';
+import '../legal/legal_compliance_screen.dart';
+import '../memorial/memorial_tributes_screen.dart';
+import '../services/blood_donor_screen.dart';
 import '../../core/utils/url_helper.dart';
 import '../../core/localization/app_locale.dart';
 import 'server_connection_dialog.dart';
+import 'logout_dialog.dart';
 
 
 
@@ -120,63 +125,95 @@ class DrawerMenu extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // User Authentication Status Card inside Header
+                    // User Authentication Status Card inside Header (Clickable for Admin / Member)
                     if (isAuthenticated && user != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(25),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            final nav = Navigator.of(context);
+                            nav.pop();
+                            if (isAdmin) {
+                              nav.push(
+                                MaterialPageRoute(builder: (_) => const AdminDashboardScreen()),
+                              );
+                            } else {
+                              nav.push(
+                                MaterialPageRoute(builder: (_) => const MemberPortalScreen()),
+                              );
+                            }
+                          },
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.white24),
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 18,
-                              backgroundColor: AppTheme.primaryGold,
-                              child: Icon(
-                                isAdmin ? Icons.admin_panel_settings : Icons.person,
-                                color: AppTheme.secondaryNavy,
-                                size: 20,
-                              ),
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withAlpha(25),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: Colors.white24),
                             ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    user.name,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: AppTheme.primaryGold,
+                                  child: Icon(
+                                    isAdmin ? Icons.admin_panel_settings : Icons.person,
+                                    color: AppTheme.secondaryNavy,
+                                    size: 20,
                                   ),
-                                  Text(
-                                    '${user.role.displayName} • ${user.username}',
-                                    style: const TextStyle(
-                                      color: AppTheme.primaryGoldLight,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              user.name,
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          const Icon(
+                                            Icons.arrow_forward_ios,
+                                            color: Colors.white60,
+                                            size: 11,
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        '${user.role.displayName} • ${user.username}',
+                                        style: const TextStyle(
+                                          color: AppTheme.primaryGoldLight,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                                IconButton(
+                                  tooltip: 'Sign Out',
+                                  icon: const Icon(Icons.logout, color: Colors.white70, size: 18),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    LogoutDialog.show(context);
+                                  },
+                                ),
+                              ],
                             ),
-                            IconButton(
-                              tooltip: 'Sign Out',
-                              icon: const Icon(Icons.logout, color: Colors.white70, size: 18),
-                              onPressed: () {
-                                authService.logout();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Logged out successfully')),
-                                );
-                              },
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ] else ...[
@@ -298,8 +335,8 @@ class DrawerMenu extends StatelessWidget {
 
               const Divider(indent: 20, endIndent: 20),
 
-              // SECTION 2: TRANSPARENCY & DOCUMENTS
-              _sectionHeader('TRANSPARENCY & DOCUMENTS'),
+              // SECTION 2: TRANSPARENCY & LEGAL COMPLIANCE
+              _sectionHeader('TRANSPARENCY & LEGAL COMPLIANCE'),
               _drawerItem(
                 context,
                 icon: Icons.description_rounded,
@@ -312,11 +349,63 @@ class DrawerMenu extends StatelessWidget {
                   );
                 },
               ),
+              _drawerItem(
+                context,
+                icon: Icons.policy_rounded,
+                title: 'Legal, Privacy & 80G Policy',
+                iconColor: const Color(0xFF10B981),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LegalComplianceScreen()),
+                  );
+                },
+              ),
 
               const Divider(indent: 20, endIndent: 20),
 
               // SECTION 3: COMMUNITY, MEDIA & STORIES
               _sectionHeader(isHi ? 'स्मृति पटल, समाज एवं मीडिया' : 'COMMUNITY, MEDIA & STORIES'),
+              _drawerItem(
+                context,
+                icon: Icons.newspaper_rounded,
+                title: 'News & Press Releases',
+                iconColor: const Color(0xFF4F46E5),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const BlogScreen()),
+                  );
+                },
+              ),
+              _drawerItem(
+                context,
+                icon: Icons.flare_rounded,
+                title: 'Amar Jyoti & Martyr Tributes',
+                iconColor: const Color(0xFFF59E0B),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MemorialTributesScreen()),
+                  );
+                },
+              ),
+              _drawerItem(
+                context,
+                icon: Icons.bloodtype_rounded,
+                title: 'Emergency Blood Network',
+                iconColor: const Color(0xFFDC2626),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const BloodDonorScreen()),
+                  );
+                },
+              ),
               _drawerItem(
                 context,
                 icon: Icons.military_tech_rounded,
@@ -370,8 +459,8 @@ class DrawerMenu extends StatelessWidget {
 
               const Divider(indent: 20, endIndent: 20),
 
-              // SECTION 5: MEMBERSHIP & HELP
-              _sectionHeader('MEMBERSHIP & HELP'),
+              // SECTION 4: MEMBERSHIP & HELP
+              _sectionHeader('MEMBERSHIP & VERIFICATION'),
               if (!isAuthenticated) ...[
                 _drawerItem(
                   context,
@@ -390,7 +479,7 @@ class DrawerMenu extends StatelessWidget {
               _drawerItem(
                 context,
                 icon: Icons.verified_user_rounded,
-                title: 'Verify Member ID',
+                title: 'Verification (Member ID & 80G)',
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.push(
@@ -425,8 +514,9 @@ class DrawerMenu extends StatelessWidget {
               ),
               _drawerItem(
                 context,
-                icon: Icons.dns_rounded,
-                title: 'Backend Server Settings',
+                icon: Icons.dns_outlined,
+                title: 'Server Connection',
+                iconColor: const Color(0xFF64748B),
                 onTap: () {
                   Navigator.pop(context);
                   ServerConnectionDialog.show(context);

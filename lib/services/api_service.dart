@@ -39,18 +39,22 @@ class ApiService {
 
   static const String prefKeyCustomUrl = 'custom_backend_url';
 
-  // Primary local development server ports and fallback hosts
+  // Primary server endpoints: Live Pinggy tunnel, production domain, and local development endpoints
   static const List<String> candidateBaseUrls = [
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-    'http://192.168.29.171:8000',
-    'http://10.0.2.2:8000',
+    'https://edzaj-2405-201-5c32-2839-51f9-a6ed-4947-6a06.free.pinggy.net',
+    'https://edzaj-2405-201-5c32-2839-51f9-a6ed-4947-6a06.free.pinggy.net/index.php',
+    'https://vuwif-2405-201-5c32-2839-51f9-a6ed-4947-6a06.run.pinggy-free.link',
+    'https://vuwif-2405-201-5c32-2839-51f9-a6ed-4947-6a06.run.pinggy-free.link/index.php',
     'http://127.0.0.1:8099',
+    'http://127.0.0.1:8099/index.php',
+    'http://10.0.2.2:8099',
+    'http://10.0.2.2:8099/index.php',
     'http://localhost:8099',
+    'http://localhost:8099/index.php',
     'https://sfofindia.com',
   ];
 
-  String _activeBaseUrl = candidateBaseUrls[0];
+  String _activeBaseUrl = 'https://edzaj-2405-201-5c32-2839-51f9-a6ed-4947-6a06.free.pinggy.net';
   String get baseUrl => _activeBaseUrl;
   set baseUrl(String url) => _activeBaseUrl = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
 
@@ -149,10 +153,20 @@ class ApiService {
 
   /// Test connectivity to a specific URL
   Future<ApiResult> testUrlConnection(String testUrl) async {
-    final clean = testUrl.trim().endsWith('/') ? testUrl.trim().substring(0, testUrl.trim().length - 1) : testUrl.trim();
+    var clean = testUrl.trim().endsWith('/') ? testUrl.trim().substring(0, testUrl.trim().length - 1) : testUrl.trim();
     try {
-      final uri = Uri.parse('$clean/api/health');
-      final response = await _client.get(uri).timeout(const Duration(seconds: 4));
+      var uri = Uri.parse('$clean/api/health');
+      var response = await _client.get(uri).timeout(const Duration(seconds: 4));
+      if (response.statusCode != 200 && !clean.endsWith('/index.php')) {
+        try {
+          final altUri = Uri.parse('$clean/index.php/api/health');
+          final altResponse = await _client.get(altUri).timeout(const Duration(seconds: 4));
+          if (altResponse.statusCode == 200) {
+            clean = '$clean/index.php';
+            response = altResponse;
+          }
+        } catch (_) {}
+      }
       if (response.statusCode == 200) {
         final body = jsonDecode(response.body);
         return ApiResult.success(body, message: 'Server reached successfully! (Database: ${body['database'] ?? 'connected'})');
@@ -431,6 +445,48 @@ class ApiService {
     }
   }
 
+  /// Request 6-digit OTP for Member Profile Password Change
+  Future<ApiResult> sendProfileOtp({
+    required int memberId,
+    String? email,
+    String? token,
+  }) async {
+    if (_isTestEnv) {
+      return ApiResult.error('Test environment', offline: true);
+    }
+    try {
+      if (!_isBackendReachable) {
+        await discoverWorkingBaseUrl(timeout: const Duration(milliseconds: 1500));
+      }
+
+      final uri = Uri.parse('$_activeBaseUrl/api/send_profile_otp');
+      final payload = jsonEncode({
+        'member_id': memberId,
+        if (email != null && email.isNotEmpty) 'email': email.trim(),
+      });
+
+      final response = await _client
+          .post(uri, headers: _buildHeaders(token: token), body: payload)
+          .timeout(const Duration(seconds: 5));
+
+      final body = jsonDecode(response.body);
+      if (response.statusCode == 200 && (body['status'] == 'success' || body['success'] == true)) {
+        return ApiResult.success(body, message: body['message'] ?? 'OTP sent to registered email.');
+      } else {
+        return ApiResult.error(
+          body['message'] ?? 'Unable to send OTP code.',
+          code: response.statusCode,
+        );
+      }
+    } on SocketException catch (e) {
+      return ApiResult.error('Backend server offline ($e).', offline: true);
+    } on TimeoutException {
+      return ApiResult.error('Request timed out connecting to backend.', offline: true);
+    } catch (e) {
+      return ApiResult.error('Unable to send OTP: $e', offline: true);
+    }
+  }
+
   /// Update Member Profile
   Future<ApiResult> updateProfile({
     required int memberId,
@@ -555,6 +611,78 @@ class ApiService {
         return ApiResult.success(body['donation'] ?? body, message: body['message']);
       }
       return ApiResult.error(body['message'] ?? 'Failed to record donation');
+    } catch (e) {
+      return ApiResult.error('Connection error: $e', offline: true);
+    }
+  }
+
+  /// Collect Annual Member Fee and Extend Validity
+  Future<ApiResult> collectMemberFee({
+    required int memberId,
+    required double amount,
+    required String paymentMethod,
+    required String transactionRef,
+    String? senderBank,
+    String? notes,
+    bool sendEmail = true,
+    String? token,
+  }) async {
+    try {
+      final uri = Uri.parse('$_activeBaseUrl/api/collect_fee');
+      final payload = jsonEncode({
+        'member_id': memberId,
+        'amount': amount,
+        'payment_method': paymentMethod,
+        'transaction_ref': transactionRef,
+        'sender_bank': senderBank ?? '',
+        'notes': notes ?? '',
+        'send_email': sendEmail,
+      });
+      final response = await _client
+          .post(uri, headers: _buildHeaders(token: token), body: payload)
+          .timeout(const Duration(seconds: 5));
+
+      final body = jsonDecode(response.body);
+      if (response.statusCode == 200 && body['success'] == true) {
+        return ApiResult.success(body, message: body['message']);
+      }
+      return ApiResult.error(body['message'] ?? 'Failed to collect member fee');
+    } catch (e) {
+      return ApiResult.error('Connection error: $e', offline: true);
+    }
+  }
+
+  /// Dispatch Membership Renewal Confirmation Email
+  Future<ApiResult> sendRenewalEmail({
+    required String email,
+    required String memberName,
+    required double amount,
+    required String newValidity,
+    required String receiptNo,
+    String? transactionRef,
+    String? paymentMethod,
+    String? token,
+  }) async {
+    try {
+      final uri = Uri.parse('$_activeBaseUrl/api/send_renewal_email');
+      final payload = jsonEncode({
+        'email': email.trim(),
+        'name': memberName.trim(),
+        'amount': amount,
+        'validity': newValidity,
+        'receipt_no': receiptNo,
+        'transaction_ref': transactionRef ?? 'ONLINE-REF',
+        'payment_method': paymentMethod ?? 'Online Gateway',
+      });
+      final response = await _client
+          .post(uri, headers: _buildHeaders(token: token), body: payload)
+          .timeout(const Duration(seconds: 5));
+
+      final body = jsonDecode(response.body);
+      if (response.statusCode == 200 && body['success'] == true) {
+        return ApiResult.success(body, message: body['message']);
+      }
+      return ApiResult.error(body['message'] ?? 'Failed to send renewal email');
     } catch (e) {
       return ApiResult.error('Connection error: $e', offline: true);
     }
@@ -853,7 +981,7 @@ class ApiService {
   /// Get Memorial Tributes (GET /api/tributes)
   Future<ApiResult> getTributes({String? heroId}) async {
     try {
-      final queryParam = heroId != null ? '?hero_id=$heroId' : '';
+      final queryParam = (heroId != null && heroId.isNotEmpty) ? '?hero_id=$heroId' : '';
       final uri = Uri.parse('$_activeBaseUrl/api/tributes$queryParam');
       final response = await _client.get(uri, headers: _buildHeaders()).timeout(const Duration(seconds: 4));
       if (response.statusCode == 200) {
@@ -868,16 +996,18 @@ class ApiService {
 
   /// Post Citizen Tribute Message (POST /api/tributes)
   Future<ApiResult> postTribute({
-    required String citizenName,
-    required String citizenCity,
+    String? name,
+    String? citizenName,
+    String? city,
+    String? citizenCity,
     required String message,
     String heroId = 'general',
   }) async {
     try {
       final uri = Uri.parse('$_activeBaseUrl/api/tributes');
       final payload = jsonEncode({
-        'citizen_name': citizenName,
-        'citizen_city': citizenCity,
+        'citizen_name': name ?? citizenName ?? 'Proud Indian',
+        'citizen_city': city ?? citizenCity ?? 'India',
         'message': message,
         'hero_id': heroId,
       });
@@ -893,11 +1023,11 @@ class ApiService {
   }
 
   /// Light a Virtual Diya (POST /api/light_diya)
-  Future<ApiResult> lightDiya(String heroId) async {
+  Future<ApiResult> lightDiya([String heroId = 'general']) async {
     try {
       final uri = Uri.parse('$_activeBaseUrl/api/light_diya');
       final payload = jsonEncode({'hero_id': heroId});
-      final response = await _client.post(uri, headers: _buildHeaders(), body: payload).timeout(const Duration(seconds: 5));
+      final response = await _client.post(uri, headers: _buildHeaders(), body: payload).timeout(const Duration(seconds: 4));
       final body = jsonDecode(response.body);
       if (response.statusCode == 200 && body['success'] == true) {
         return ApiResult.success(body, message: body['message']);
@@ -991,5 +1121,28 @@ class ApiService {
       return ApiResult.error('Backend offline: $e', offline: true);
     }
   }
+
+  /// Verify 80G Donation Receipt Authenticity (GET /api/donations with receipt query)
+  Future<ApiResult> verifyDonationReceipt(String receiptNo) async {
+    try {
+      final clean = receiptNo.trim();
+      final uri = Uri.parse('$_activeBaseUrl/api/donations').replace(
+        queryParameters: {'receipt_no': clean},
+      );
+      final response = await _client.get(uri, headers: _buildHeaders()).timeout(const Duration(seconds: 4));
+      if (response.statusCode == 200) {
+        final body = jsonDecode(response.body);
+        final list = (body is List) ? body : (body is Map ? (body['donations'] ?? body['data'] ?? []) : []);
+        if (list is List && list.isNotEmpty) {
+          return ApiResult.success(list.first, message: 'Valid 80G Tax Exemption Receipt');
+        }
+        return ApiResult.error('No donation record found matching receipt #$clean');
+      }
+      return ApiResult.error('Failed to verify donation receipt');
+    } catch (e) {
+      return ApiResult.error('Backend offline: $e', offline: true);
+    }
+  }
 }
+
 

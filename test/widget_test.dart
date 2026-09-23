@@ -13,13 +13,15 @@ void main() {
     expect(find.text('SHAHEED FOUNDATION'), findsWidgets);
   });
 
-  testWidgets('App starts on Home tab and displays Login button', (WidgetTester tester) async {
+  testWidgets('App starts on Home tab with clean header and navigation', (WidgetTester tester) async {
     await tester.pumpWidget(const ShaheedFoundationApp());
     await tester.pumpAndSettle();
 
-    // Verify Home tab is active and header & login elements are present
+    // Verify Home tab is active and clean header & navigation elements are present
     expect(find.text('SHAHEED FOUNDATION'), findsWidgets);
-    expect(find.text('Login'), findsWidgets);
+    expect(find.text('Services'), findsWidgets);
+    expect(find.text('Donate'), findsWidgets);
+    expect(find.text('Members'), findsWidgets);
   });
 
   test('AuthService handles offline demo admin login and logout', () async {

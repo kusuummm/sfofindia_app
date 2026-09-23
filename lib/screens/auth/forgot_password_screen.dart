@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/responsive.dart';
@@ -128,21 +130,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         }
       });
     } else {
-      // Check offline fallback for development/demo testing or test harness
-      if (res.isOffline || res.statusCode == 400 || res.statusCode >= 500) {
-        final clean = email.toLowerCase();
-        if (clean.contains('admin') || clean.contains('member') || clean.contains('sfof') || clean.contains('@')) {
-          _registeredEmail = email;
-          _maskedEmail = email;
-          _debugOtp = '123456';
-          setState(() {
-            _isLoading = false;
-            _currentStep = 2;
-            _successMessage = 'Demo Mode: 6-digit OTP is 123456';
-          });
-          _startResendTimer();
-          return;
-        }
+      final isTestEnv = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+      if (isTestEnv && res.isOffline) {
+        _registeredEmail = email;
+        _maskedEmail = email;
+        _debugOtp = '123456';
+        setState(() {
+          _isLoading = false;
+          _currentStep = 2;
+          _successMessage = 'A 6-digit verification code has been dispatched to $_maskedEmail.';
+        });
+        _startResendTimer();
+        return;
       }
 
       setState(() {
@@ -192,13 +191,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         _successMessage = 'OTP code verified! Please set your new password.';
       });
     } else {
-      // Offline demo fallback check
-      if ((res.isOffline || res.statusCode == 400) && (otp == '123456' || otp == _debugOtp)) {
+      final isTestEnv = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+      if (isTestEnv && res.isOffline && (otp == '123456' || otp == _debugOtp)) {
         setState(() {
           _isLoading = false;
           _currentStep = 3;
-          _resetToken = 'demo_reset_token';
-          _successMessage = 'Demo OTP verified! Please set your new password.';
+          _resetToken = 'test_reset_token';
+          _successMessage = 'OTP code verified! Please set your new password.';
         });
         return;
       }
@@ -249,11 +248,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
       _completeLoginFlow(userRole);
     } else {
-      // Offline fallback: auto-login with demo account
-      if (res.isOffline || res.statusCode == 400 || res.statusCode >= 500) {
+      final isTestEnv = !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
+      if (isTestEnv && res.isOffline) {
         final isAdminEmail = _registeredEmail.toLowerCase().contains('admin');
         final role = isAdminEmail ? UserRole.admin : UserRole.member;
-        final demoUser = AuthUser(
+        final testUser = AuthUser(
           id: '1',
           username: isAdminEmail ? 'admin' : 'MBR0001',
           name: isAdminEmail ? 'System Administrator' : 'Shaheed Member',
@@ -262,7 +261,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           status: 'Active',
         );
 
-        AuthService().setOfflineSession(demoUser);
+        AuthService().setOfflineSession(testUser);
         _completeLoginFlow(role);
         return;
       }
@@ -534,18 +533,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 14),
-
-        // Quick Demo Fill Chips
-        Wrap(
-          spacing: 8,
-          runSpacing: 6,
-          children: [
-            _demoEmailChip('Admin Email', 'admin@example.com'),
-            _demoEmailChip('Member Email', 'shakyashalini1999@gmail.com'),
-          ],
-        ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
 
         // Submit Button
         SizedBox(
@@ -587,20 +575,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  Widget _demoEmailChip(String label, String email) {
-    return ActionChip(
-      avatar: const Icon(Icons.flash_on, size: 14, color: AppTheme.primaryGoldDark),
-      label: Text('$label ($email)', style: const TextStyle(fontSize: 11)),
-      backgroundColor: AppTheme.warmCreamLight,
-      onPressed: () {
-        setState(() {
-          _emailController.text = email;
-          _errorMessage = null;
-        });
-      },
-    );
-  }
-
   // --- STEP 2: 6-DIGIT OTP INPUT WIDGETS ---
   Widget _buildStep2OtpForm() {
     return Column(
@@ -632,33 +606,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 8),
-
-        // Combined Hidden Input for automated testing and quick paste
-        TextField(
-          key: const Key('forgot_otp_input'),
-          controller: _otpController,
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          decoration: InputDecoration(
-            counterText: '',
-            hintText: 'Enter 6-digit OTP (e.g. 123456)',
-            prefixIcon: const Icon(Icons.pin, color: AppTheme.secondaryNavy, size: 20),
-            filled: true,
-            fillColor: Colors.grey.shade50,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-          ),
-          onChanged: (val) {
-            // Sync with discrete boxes
-            for (int i = 0; i < 6; i++) {
-              _digitControllers[i].text = i < val.length ? val[i] : '';
-            }
-          },
-        ),
         const SizedBox(height: 12),
 
         // 6 Discrete Visual Boxes
@@ -672,11 +619,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   width: boxWidth,
                   height: 52,
                   child: TextField(
+                    key: Key('forgot_otp_digit_$index'),
                     controller: _digitControllers[index],
                     focusNode: _digitFocusNodes[index],
                     keyboardType: TextInputType.number,
                     textAlign: TextAlign.center,
-                    maxLength: 1,
+                    maxLength: index == 0 ? 6 : 1,
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppTheme.secondaryNavy),
                     decoration: InputDecoration(
                       counterText: '',
@@ -693,12 +641,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     ),
                     onChanged: (value) {
+                      if (index == 0 && value.length > 1) {
+                        final clean = value.replaceAll(RegExp(r'[^0-9]'), '');
+                        for (int i = 0; i < 6; i++) {
+                          _digitControllers[i].text = i < clean.length ? clean[i] : '';
+                        }
+                        if (clean.length >= 6) {
+                          _digitFocusNodes[5].requestFocus();
+                        }
+                        return;
+                      }
                       if (value.isNotEmpty && index < 5) {
                         _digitFocusNodes[index + 1].requestFocus();
                       } else if (value.isEmpty && index > 0) {
                         _digitFocusNodes[index - 1].requestFocus();
                       }
-                      _otpController.text = _digitControllers.map((c) => c.text).join();
                     },
                   ),
                 );

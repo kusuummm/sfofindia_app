@@ -26,16 +26,24 @@ class _ServerConnectionDialogState extends State<ServerConnectionDialog> {
 
   final List<Map<String, String>> _presets = [
     {
-      'label': 'Host Wi-Fi (8099)',
-      'url': 'http://192.168.29.171:8099',
+      'label': 'Live Pinggy Tunnel (Port 8099)',
+      'url': 'https://edzaj-2405-201-5c32-2839-51f9-a6ed-4947-6a06.free.pinggy.net',
     },
     {
-      'label': 'Emulator (10.0.2.2)',
+      'label': 'Live Pinggy Alt (run.pinggy-free.link)',
+      'url': 'https://vuwif-2405-201-5c32-2839-51f9-a6ed-4947-6a06.run.pinggy-free.link',
+    },
+    {
+      'label': 'Localhost (127.0.0.1:8099)',
+      'url': 'http://127.0.0.1:8099',
+    },
+    {
+      'label': 'Android Emulator (10.0.2.2:8099)',
       'url': 'http://10.0.2.2:8099',
     },
     {
-      'label': 'Localhost (127.0.0.1)',
-      'url': 'http://127.0.0.1:8099',
+      'label': 'Official Website (sfofindia.com)',
+      'url': 'https://sfofindia.com',
     },
   ];
 

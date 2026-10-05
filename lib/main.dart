@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
-import 'screens/main_shell.dart';
+import 'screens/admin/admin_dashboard_screen.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/member/member_portal_screen.dart';
 import 'services/auth_service.dart';
 
 void main() async {
@@ -28,7 +30,31 @@ class ShaheedFoundationApp extends StatelessWidget {
           child: child ?? const SizedBox(),
         );
       },
-      home: const MainShell(),
+      home: const AuthGate(),
+    );
+  }
+}
+
+/// Root authentication gate:
+/// - If signed in: automatically directs to Member Portal (or Admin Dashboard)
+/// - If not signed in: starts directly on the Login / Register screen with "View Website" browser option
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListenableBuilder(
+      listenable: AuthService(),
+      builder: (context, _) {
+        final auth = AuthService();
+        if (auth.isAuthenticated) {
+          if (auth.isAdmin) {
+            return const AdminDashboardScreen();
+          }
+          return const MemberPortalScreen();
+        }
+        return const LoginScreen();
+      },
     );
   }
 }

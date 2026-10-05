@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../services/auth_service.dart';
 import '../../services/api_service.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/utils/url_helper.dart';
 import '../widgets/document_preview_dialog.dart';
 import '../widgets/logout_dialog.dart';
@@ -2251,6 +2252,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ],
               ),
               actions: [
+                IconButton(
+                  icon: const Icon(Icons.language, color: Color(0xFF4F46E5)),
+                  onPressed: () => UrlHelper.launchWebUrl(AppConstants.websiteUrl),
+                  tooltip: 'View Official Website in Browser',
+                ),
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   onPressed: _loadDashboardData,

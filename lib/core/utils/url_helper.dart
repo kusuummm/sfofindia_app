@@ -85,11 +85,16 @@ class UrlHelper {
     }
   }
 
-  /// Opens an external web URL.
+  /// Opens an external web URL in the device browser.
   static Future<void> launchWebUrl(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    try {
+      final uri = Uri.parse(url);
+      final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+      if (!launched) {
+        await launchUrl(uri, mode: LaunchMode.platformDefault);
+      }
+    } catch (e) {
+      debugPrint('Error launching web URL: $e');
     }
   }
 }

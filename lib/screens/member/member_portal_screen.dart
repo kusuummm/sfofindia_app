@@ -1,5 +1,4 @@
 import 'dart:async';
-import '../main_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -1852,10 +1851,13 @@ UPI ID: ${AppConstants.upiId}''';
                   icon: const Icon(Icons.arrow_back),
                   onPressed: () => Navigator.pop(context),
                 )
-              : IconButton(
-                  icon: const Icon(Icons.menu),
-                  tooltip: 'Open Menu',
-                  onPressed: () => MainShell.openDrawer(),
+              : Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Image.asset(
+                    AppConstants.logoPath,
+                    fit: BoxFit.contain,
+                    errorBuilder: (ctx, err, stack) => const Icon(Icons.shield, color: Color(0xFFF59E0B)),
+                  ),
                 ),
           title: const Text('Member Portal & Services'),
           backgroundColor: const Color(0xFF1E293B),
@@ -1920,10 +1922,13 @@ UPI ID: ${AppConstants.upiId}''';
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () => Navigator.pop(context),
               )
-            : IconButton(
-                icon: const Icon(Icons.menu),
-                tooltip: 'Open Menu',
-                onPressed: () => MainShell.openDrawer(),
+            : Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Image.asset(
+                  AppConstants.logoPath,
+                  fit: BoxFit.contain,
+                  errorBuilder: (ctx, err, stack) => const Icon(Icons.shield, color: Color(0xFFF59E0B)),
+                ),
               ),
         titleSpacing: 0,
         title: const FittedBox(
@@ -1941,6 +1946,15 @@ UPI ID: ${AppConstants.upiId}''';
         backgroundColor: const Color(0xFF1E293B),
         elevation: 0,
         actions: [
+          // View Official Website in Browser
+          IconButton(
+            tooltip: 'View Official Website (Browser)',
+            icon: const Icon(Icons.language, size: 20, color: Color(0xFFFBBF24)),
+            padding: const EdgeInsets.all(6),
+            constraints: const BoxConstraints(),
+            onPressed: () => UrlHelper.launchWebUrl(AppConstants.websiteUrl),
+          ),
+          const SizedBox(width: 4),
           ElevatedButton.icon(
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFFF59E0B),

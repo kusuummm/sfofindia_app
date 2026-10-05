@@ -38,23 +38,18 @@ class ApiService {
   }
 
   static const String prefKeyCustomUrl = 'custom_backend_url';
+  static const String productionBaseUrl = 'https://sfofindia.com';
+  static const String localBackendUrl = 'http://127.0.0.1:8099';
 
-  // Primary server endpoints: Live Pinggy tunnel, production domain, and local development endpoints
+  // Candidate server endpoints
   static const List<String> candidateBaseUrls = [
-    'https://edzaj-2405-201-5c32-2839-51f9-a6ed-4947-6a06.free.pinggy.net',
-    'https://edzaj-2405-201-5c32-2839-51f9-a6ed-4947-6a06.free.pinggy.net/index.php',
-    'https://vuwif-2405-201-5c32-2839-51f9-a6ed-4947-6a06.run.pinggy-free.link',
-    'https://vuwif-2405-201-5c32-2839-51f9-a6ed-4947-6a06.run.pinggy-free.link/index.php',
-    'http://127.0.0.1:8099',
-    'http://127.0.0.1:8099/index.php',
-    'http://10.0.2.2:8099',
-    'http://10.0.2.2:8099/index.php',
+    localBackendUrl,
     'http://localhost:8099',
-    'http://localhost:8099/index.php',
-    'https://sfofindia.com',
+    productionBaseUrl,
+    'https://sfofindia.com/index.php',
   ];
 
-  String _activeBaseUrl = 'https://edzaj-2405-201-5c32-2839-51f9-a6ed-4947-6a06.free.pinggy.net';
+  String _activeBaseUrl = kIsWeb ? localBackendUrl : productionBaseUrl;
   String get baseUrl => _activeBaseUrl;
   set baseUrl(String url) => _activeBaseUrl = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
 
@@ -77,7 +72,7 @@ class ApiService {
   bool get _isTestEnv => !kIsWeb && Platform.environment.containsKey('FLUTTER_TEST');
 
   /// Probes available base URLs to find the responding backend
-  Future<String?> discoverWorkingBaseUrl({Duration timeout = const Duration(seconds: 3)}) async {
+  Future<String?> discoverWorkingBaseUrl({Duration timeout = const Duration(seconds: 2)}) async {
     if (_isTestEnv) {
       _isBackendReachable = false;
       return null;
@@ -101,17 +96,13 @@ class ApiService {
     } catch (_) {}
 
     // 2. Prioritize candidate URLs
-    List<String> urlsToTest = List.from(candidateBaseUrls);
-    if (!kIsWeb && Platform.isAndroid) {
-      urlsToTest.remove('http://192.168.29.171:8099');
-      urlsToTest.remove('http://10.0.2.2:8099');
-      urlsToTest.remove('http://10.0.2.2:8000');
-      urlsToTest.insert(0, 'http://192.168.29.171:8099');
-      urlsToTest.insert(1, 'http://10.0.2.2:8099');
-      urlsToTest.insert(2, 'http://10.0.2.2:8000');
+    List<String> urlsToTest;
+    if (kReleaseMode && !kIsWeb) {
+      urlsToTest = [productionBaseUrl, 'https://sfofindia.com/index.php'];
     } else if (kIsWeb) {
-      urlsToTest.remove('http://10.0.2.2:8000');
-      urlsToTest.remove('http://10.0.2.2:8099');
+      urlsToTest = [localBackendUrl, 'http://localhost:8099', productionBaseUrl];
+    } else {
+      urlsToTest = [localBackendUrl, 'http://10.0.2.2:8099', 'http://192.168.29.171:8099', productionBaseUrl];
     }
 
     for (final base in urlsToTest) {

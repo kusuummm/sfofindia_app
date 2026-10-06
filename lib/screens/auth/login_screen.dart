@@ -8,6 +8,7 @@ import '../admin/admin_dashboard_screen.dart';
 import '../member/member_apply_screen.dart';
 import '../member/member_portal_screen.dart';
 import '../member/member_verify_screen.dart';
+import '../legal/legal_compliance_screen.dart';
 import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -522,6 +523,61 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: const TextStyle(fontSize: 10, color: Color(0xFF94A3B8)),
                               ),
                             ],
+                          ),
+                          const Divider(height: 16, color: Color(0xFFF1F5F9)),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 8,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const LegalComplianceScreen(initialTabIndex: 0)),
+                                  );
+                                },
+                                child: const Text(
+                                  'Privacy Policy',
+                                  style: TextStyle(fontSize: 11, color: Color(0xFF4F46E5), fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              const Text('•', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const LegalComplianceScreen(initialTabIndex: 1)),
+                                  );
+                                },
+                                child: const Text(
+                                  'Terms of Use',
+                                  style: TextStyle(fontSize: 11, color: Color(0xFF4F46E5), fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                              const Text('•', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
+                              GestureDetector(
+                                onTap: () => UrlHelper.launchWebUrl(AppConstants.accountDeletionUrl),
+                                child: const Text(
+                                  'Data Deletion',
+                                  style: TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: const Color(0xFFE2E8F0)),
+                            ),
+                            child: const Text(
+                              AppConstants.governmentDisclaimer,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 9.5, color: Color(0xFF64748B), height: 1.35),
+                            ),
                           ),
                         ],
                       ),

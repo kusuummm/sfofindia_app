@@ -19,6 +19,16 @@ class AppConstants {
   static const String websiteUrl = 'https://sfofindia.com';
   static const String youtubeUrl = 'https://youtube.com/@sfofindia?si=SzhqBjwqbZkbisbi';
 
+  // Store Policy & Compliance URLs
+  static const String privacyPolicyUrl = 'https://sfofindia.com/privacy_policy';
+  static const String termsUrl = 'https://sfofindia.com/terms';
+  static const String refundPolicyUrl = 'https://sfofindia.com/refund_policy';
+  static const String accountDeletionUrl = 'https://sfofindia.com/delete-account';
+
+  // Government & Anti-Impersonation Disclaimer (Mandatory for App Store & Play Store)
+  static const String governmentDisclaimer =
+      'Shaheed Foundation of India is an independent registered Section 8 non-profit organization (CIN: U85300HR2022NPL101988) and does not represent, operate on behalf of, or affiliate with any government entity. Welfare scheme details are referenced strictly for beneficiary guidance and public awareness.';
+
   // Bank Transfer Details
   static const String bankAccountName = 'SHAHEED FOUNDATION';
   static const String bankName = 'AXIS BANK';

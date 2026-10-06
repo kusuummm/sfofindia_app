@@ -105,19 +105,57 @@ class _LegalComplianceScreenState extends State<LegalComplianceScreen> with Sing
         _buildSectionCard(
           title: '5. User Rights & Account Deletion',
           content:
-              'You have the right to review, update, or request the deletion of your account and personal records at any time. To exercise these rights, email us directly at info@sfofindia.com or privacy@sfofindia.com. Verified requests are processed within 7 business days.',
+              'You have the legal right to review, update, or request the permanent deletion of your account, login credentials, and uploaded identity records at any time.\n\n'
+              '• In-App Deletion: Go to Member Portal > Security & KYC > Account & Data Deletion.\n'
+              '• Web Form: Visit our dedicated deletion form at sfofindia.com/delete-account.\n'
+              '• Email Grievance: Email us at privacy@sfofindia.com or info@sfofindia.com.\n\n'
+              'Verified account deletion requests are processed by our compliance officer within 7 business days.',
         ),
         const SizedBox(height: 10),
-        ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppTheme.primaryGold,
-            foregroundColor: AppTheme.secondaryNavy,
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        Row(
+          children: [
+            Expanded(
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppTheme.primaryGold,
+                  foregroundColor: AppTheme.secondaryNavy,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                icon: const Icon(Icons.open_in_browser, size: 18),
+                label: const Text('Full Privacy Policy', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                onPressed: () => UrlHelper.launchWebUrl(AppConstants.privacyPolicyUrl),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFFDC2626),
+                  side: const BorderSide(color: Color(0xFFDC2626)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                icon: const Icon(Icons.delete_outline, size: 18),
+                label: const Text('Delete Account', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                onPressed: () => UrlHelper.launchWebUrl(AppConstants.accountDeletionUrl),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
           ),
-          icon: const Icon(Icons.open_in_browser),
-          label: const Text('View Privacy Policy on sfofindia.com', style: TextStyle(fontWeight: FontWeight.bold)),
-          onPressed: () => UrlHelper.launchWebUrl('https://sfofindia.com/privacy-policy'),
+          child: const Text(
+            AppConstants.governmentDisclaimer,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 10, color: Color(0xFF64748B), height: 1.35),
+          ),
         ),
         const SizedBox(height: 24),
       ],

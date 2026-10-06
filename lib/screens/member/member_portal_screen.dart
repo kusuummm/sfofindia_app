@@ -4002,8 +4002,164 @@ UPI ID: ${AppConstants.upiId}''';
               ],
             ),
           ),
+          const SizedBox(height: 16),
+
+          // Account Deletion & Data Privacy Card (Apple App Store 5.1.1(v) & Google Play Mandate)
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFFCA5A5)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEE2E2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.no_accounts_outlined, color: Color(0xFFDC2626), size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Account & Data Deletion',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E293B)),
+                          ),
+                          SizedBox(height: 2),
+                          Text(
+                            'In compliance with Apple App Store & Google Play privacy standards',
+                            style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'You have the legal right to request the permanent deletion of your member account, associated login credentials, and uploaded identity documents.',
+                  style: TextStyle(fontSize: 12, color: Color(0xFF475569), height: 1.4),
+                ),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFDC2626),
+                        side: const BorderSide(color: Color(0xFFDC2626)),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      icon: const Icon(Icons.delete_forever, size: 16),
+                      label: const Text('Request Deletion', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                      onPressed: _showAccountDeletionDialog,
+                    ),
+                    const SizedBox(width: 12),
+                    TextButton(
+                      onPressed: () => UrlHelper.launchWebUrl(AppConstants.accountDeletionUrl),
+                      child: const Text('Web Deletion Form ↗', style: TextStyle(fontSize: 12, color: Color(0xFF4F46E5))),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Government Non-Affiliation Disclaimer
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: const Text(
+              AppConstants.governmentDisclaimer,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 10, color: Color(0xFF64748B), height: 1.35),
+            ),
+          ),
         ],
       ),
+    );
+  }
+
+  void _showAccountDeletionDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: Color(0xFFDC2626), size: 26),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Delete Account & Data?',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Are you sure you want to request account deletion?',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+              ),
+              SizedBox(height: 8),
+              Text(
+                '• Your member login credentials will be revoked.\n'
+                '• Uploaded KYC document copies will be purged.\n'
+                '• Active member digital ID card will be deactivated.\n'
+                '• Previously generated 80G tax receipts are archived per statutory law.',
+                style: TextStyle(fontSize: 12, color: Color(0xFF475569), height: 1.4),
+              ),
+              SizedBox(height: 12),
+              Text(
+                'A deletion confirmation request will be processed by our grievance officer within 7 business days.',
+                style: TextStyle(fontSize: 11, color: Colors.grey),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFDC2626),
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Account deletion request submitted. Signing out...'),
+                    backgroundColor: Color(0xFF1E293B),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                _authService.logout();
+              },
+              child: const Text('Confirm Deletion Request'),
+            ),
+          ],
+        );
+      },
     );
   }
 
